@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#1A1008"/>
+  <meta name="description" content="Desmantelo's Burguer — Hambúrguer Artesanal na Brasa. Peça pelo WhatsApp!"/>
+  <title>Desmantelo's Burguer — Cardápio</title>
+
+  <!-- Fontes: preconnect + não-bloqueante -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Permanent+Marker&family=Nunito:wght@600;800&display=swap"
+        onload="this.onload=null;this.rel='stylesheet'"/>
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Permanent+Marker&family=Nunito:wght@600;800&display=swap"/>
+  </noscript>
+
+  <style>
+    /* ── TOKENS ── */
+    :root{
+      --red:#C41A1A;--red-dark:#8B0000;
+      --yellow:#F5A623;--gold:#D4880A;
+      --black:#1A1008;--cream:#F5EDD8;--cream2:#EDE0C4;
+      --green:#2d6a1f;--white:#FFFDF7;
+      --shadow:6px 6px 0 var(--black);
+      --radius:14px;
+    }
+
+    /* ── RESET ── */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+    body{
+      font-family:'Nunito',system-ui,sans-serif;
+      background:var(--cream);
+      color:var(--black);
+      overflow-x:hidden;
+      /* GPU layer para scroll suave */
+      -webkit-overflow-scrolling:touch;
+    }
+
+    /* grain — feito em CSS puro, zero HTTP request */
+    body::before{
+      content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.07'/%3E%3C/svg%3E");
+      opacity:.3;will-change:auto;
+    }
+
+    /* ── HEADER ── */
+    header{
+      position:relative;background:var(--black);
+      text-align:center;padding:20px 16px 16px;overflow:hidden;
+    }
+    header::after{
+      content:'';position:absolute;bottom:0;left:0;right:0;height:5px;
+      background:repeating-linear-gradient(90deg,var(--red) 0 20px,var(--yellow) 20px 40px,var(--red) 40px 60px);
+    }
+    .header-flames{font-size:1.6rem;letter-spacing:8px;animation:flicker 2s ease-in-out infinite alternate}
+    @keyframes flicker{0%{opacity:1}50%{opacity:.8}100%{opacity:1}}
+
+    .logo-img{
+      width:min(200px,58vw);display:block;margin:6px auto 4px;
+      /* will-change evitado — logo é estático */
+      filter:drop-shadow(0 3px 12px rgba(245,166,35,.4));
+    }
+    .tagline{
+      font-family:'Permanent Marker',cursive;
+      color:var(--yellow);font-size:clamp(.7rem,2.8vw,.9rem);
+      letter-spacing:2px;text-shadow:1px 2px 0 var(--red-dark);margin-top:2px;
+    }
+
+    /* ── BANNER ── */
+    .banner{
+      position:relative;z-index:1;
+      background:var(--red);color:var(--yellow);text-align:center;
+      padding:9px 16px;font-family:'Bebas Neue',cursive;
+      font-size:clamp(.85rem,3.5vw,1.1rem);letter-spacing:2px;
+    }
+
+    /* ── MAIN ── */
+    main{position:relative;z-index:1;max-width:580px;margin:0 auto;padding:20px 14px 150px}
+
+    .section-title{
+      font-family:'Bebas Neue',cursive;font-size:clamp(1.8rem,7vw,2.8rem);
+      color:var(--red);text-align:center;letter-spacing:4px;
+      text-shadow:3px 3px 0 var(--black);
+    }
+    .section-title::after{
+      content:'';display:block;width:70px;height:4px;
+      background:var(--yellow);margin:5px auto 20px;border-radius:2px;
+    }
+
+    /* ── CARD ── */
+    .burger-card{
+      background:var(--white);border:2.5px solid var(--black);
+      border-radius:var(--radius);margin-bottom:18px;overflow:hidden;
+      box-shadow:var(--shadow);
+      /* contain: layout evita repaints desnecessários */
+      contain:layout;
+      transition:transform .15s,box-shadow .15s;
+    }
+    @media(hover:hover){
+      .burger-card:hover{transform:translateY(-3px) rotate(-.3deg);box-shadow:9px 9px 0 var(--black)}
+    }
+
+    /* imagem */
+    .card-img-wrap{
+      position:relative;background:var(--cream2);
+      height:190px;overflow:hidden;border-bottom:2.5px solid var(--black);
+      display:flex;align-items:center;justify-content:center;
+    }
+    .card-img-wrap img{
+      width:100%;height:100%;object-fit:cover;
+      /* decodificação assíncrona */
+      decoding:async;
+    }
+    .img-placeholder{display:flex;flex-direction:column;align-items:center;gap:6px;opacity:.55}
+    .img-placeholder span:first-child{font-size:3rem}
+    .img-placeholder span:last-child{font-family:'Bebas Neue',cursive;font-size:.8rem;letter-spacing:2px;color:var(--black)}
+
+    .badge-new{
+      position:absolute;top:10px;right:10px;
+      background:var(--red);color:var(--yellow);
+      font-family:'Bebas Neue',cursive;font-size:.8rem;letter-spacing:2px;
+      padding:3px 9px;border-radius:4px;border:2px solid var(--black);
+      transform:rotate(3deg);box-shadow:2px 2px 0 var(--black);
+    }
+
+    /* body */
+    .card-body{padding:14px 16px 16px}
+    .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px}
+    .burger-name{
+      font-family:'Bebas Neue',cursive;
+      font-size:clamp(1.3rem,4.5vw,1.7rem);color:var(--red-dark);letter-spacing:2px;line-height:1
+    }
+    .burger-price{
+      font-family:'Bebas Neue',cursive;font-size:1.5rem;
+      color:var(--black);background:var(--yellow);
+      border:2px solid var(--black);border-radius:8px;
+      padding:2px 9px;white-space:nowrap;
+      box-shadow:2px 2px 0 var(--black);flex-shrink:0;
+    }
+    .burger-desc{font-size:.82rem;color:#5a4a30;line-height:1.5;margin-bottom:12px}
+
+    /* adicionais */
+    .adicionais-toggle{
+      background:var(--cream);border:2px solid var(--black);border-radius:8px;
+      padding:6px 13px;font-family:'Nunito',sans-serif;font-weight:800;
+      font-size:.78rem;letter-spacing:1px;cursor:pointer;color:var(--black);
+      /* tap target mínimo 44px */
+      min-height:38px;
+      transition:background .12s;
+    }
+    .adicionais-toggle:hover{background:var(--cream2)}
+
+    .adicionais-panel{
+      display:none;margin-top:10px;padding:12px;
+      background:var(--cream);border:2px dashed var(--gold);border-radius:10px;
+    }
+    .adicionais-panel.open{display:block;animation:slideDown .18s ease}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+
+    .adicionais-panel h4{
+      font-family:'Bebas Neue',cursive;font-size:.95rem;letter-spacing:2px;
+      color:var(--red-dark);margin-bottom:8px;
+    }
+    .adicional-item{
+      display:flex;align-items:center;gap:8px;margin-bottom:7px;cursor:pointer;
+      /* tap target */
+      min-height:36px;
+    }
+    .adicional-item input[type=checkbox]{width:18px;height:18px;accent-color:var(--red);flex-shrink:0;cursor:pointer}
+    .adicional-item label{font-size:.83rem;font-weight:700;cursor:pointer;flex:1}
+    .adicional-price{font-size:.78rem;color:var(--green);font-weight:800}
+
+    .obs-label{display:block;font-family:'Bebas Neue',cursive;font-size:.9rem;letter-spacing:1px;margin:10px 0 4px}
+    .obs-input{
+      width:100%;padding:8px 10px;border:2px solid var(--black);border-radius:8px;
+      font-family:'Nunito',sans-serif;font-size:.83rem;background:var(--white);
+      resize:none;outline:none;transition:border-color .12s;
+    }
+    .obs-input:focus{border-color:var(--red)}
+
+    /* botão pedir */
+    .btn-pedir{
+      display:block;width:100%;margin-top:12px;padding:11px;
+      background:var(--red);color:var(--yellow);
+      border:2.5px solid var(--black);border-radius:10px;
+      font-family:'Bebas Neue',cursive;font-size:1.1rem;letter-spacing:3px;
+      cursor:pointer;box-shadow:4px 4px 0 var(--black);
+      /* touch feedback */
+      -webkit-tap-highlight-color:transparent;
+      transition:transform .1s,box-shadow .1s,background .1s;
+    }
+    .btn-pedir:hover{background:var(--red-dark)}
+    .btn-pedir:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--black)}
+
+    /* ── CARRINHO FLUTUANTE ── */
+    .cart-float{
+      position:fixed;bottom:0;left:0;right:0;
+      background:var(--black);border-top:4px solid var(--yellow);
+      padding:12px 16px 12px;
+      display:flex;align-items:center;gap:10px;z-index:100;
+      transform:translateY(100%);
+      transition:transform .28s cubic-bezier(.34,1.56,.64,1);
+      /* evita reflow ao animar */
+      will-change:transform;
+      /* safe area iPhone */
+      padding-bottom:calc(12px + env(safe-area-inset-bottom));
+    }
+    .cart-float.visible{transform:translateY(0)}
+
+    .cart-info{flex:1;overflow:hidden}
+    .cart-count{font-family:'Bebas Neue',cursive;font-size:.8rem;color:var(--yellow);letter-spacing:2px}
+    .cart-items-list{
+      font-size:.72rem;color:var(--cream2);margin-top:1px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .cart-total{font-family:'Bebas Neue',cursive;font-size:1.4rem;color:var(--yellow);white-space:nowrap}
+
+    .cart-actions{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+    .btn-enviar{
+      background:var(--green);color:#fff;
+      border:2.5px solid var(--black);border-radius:9px;
+      padding:9px 14px;font-family:'Bebas Neue',cursive;
+      font-size:.9rem;letter-spacing:2px;cursor:pointer;
+      box-shadow:2px 2px 0 rgba(0,0,0,.5);white-space:nowrap;
+      -webkit-tap-highlight-color:transparent;
+      transition:transform .1s,box-shadow .1s;
+    }
+    .btn-enviar:active{transform:translate(2px,2px);box-shadow:none}
+    .btn-limpar{
+      background:none;border:none;color:#777;font-size:.65rem;
+      cursor:pointer;text-decoration:underline;padding:0;font-family:'Nunito',sans-serif;
+    }
+
+    /* ── DRAWER DO PEDIDO ── */
+    .drawer-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:110;
+      opacity:0;pointer-events:none;transition:opacity .2s;
+    }
+    .drawer-overlay.open{opacity:1;pointer-events:all}
+
+    .drawer{
+      position:fixed;bottom:0;left:0;right:0;
+      background:var(--cream);border-top:4px solid var(--yellow);border-radius:18px 18px 0 0;
+      z-index:120;max-height:75vh;display:flex;flex-direction:column;
+      transform:translateY(100%);transition:transform .28s cubic-bezier(.34,1.56,.64,1);
+      will-change:transform;
+      padding-bottom:env(safe-area-inset-bottom);
+    }
+    .drawer.open{transform:translateY(0)}
+
+    .drawer-header{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:14px 18px 10px;border-bottom:2px solid var(--cream2);flex-shrink:0;
+    }
+    .drawer-header h3{font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:2px;color:var(--red-dark)}
+    .btn-close-drawer{
+      background:none;border:2px solid var(--black);border-radius:50%;
+      width:30px;height:30px;font-size:1rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+    }
+
+    .drawer-body{overflow-y:auto;flex:1;padding:10px 16px}
+
+    .order-item{
+      display:flex;align-items:flex-start;gap:10px;
+      padding:10px 0;border-bottom:1px dashed var(--cream2);
+    }
+    .order-item:last-child{border-bottom:none}
+    .order-item-info{flex:1}
+    .order-item-name{font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:1px;color:var(--red-dark)}
+    .order-item-adds{font-size:.75rem;color:#5a4a30;margin-top:2px}
+    .order-item-obs{font-size:.72rem;color:#888;font-style:italic;margin-top:2px}
+    .order-item-price{font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--black);white-space:nowrap}
+    .btn-remove{
+      background:var(--red);color:#fff;border:none;border-radius:6px;
+      width:28px;height:28px;font-size:.9rem;cursor:pointer;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    .drawer-footer{
+      padding:12px 16px;border-top:2px solid var(--cream2);flex-shrink:0;
+      display:flex;justify-content:space-between;align-items:center;
+    }
+    .drawer-total{font-family:'Bebas Neue',cursive;font-size:1.3rem}
+    .btn-fechar-pedir{
+      background:var(--green);color:#fff;border:2.5px solid var(--black);
+      border-radius:9px;padding:9px 16px;font-family:'Bebas Neue',cursive;
+      font-size:1rem;letter-spacing:2px;cursor:pointer;
+      box-shadow:3px 3px 0 var(--black);
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    /* ── AVALIAÇÃO ── */
+    .review-section{
+      position:relative;z-index:1;
+      background:var(--black);
+      padding:28px 20px;text-align:center;
+    }
+    .review-section h3{
+      font-family:'Bebas Neue',cursive;color:var(--yellow);
+      font-size:clamp(1.2rem,5vw,1.8rem);letter-spacing:3px;
+      text-shadow:2px 2px 0 var(--red-dark);margin-bottom:6px;
+    }
+    .review-section p{color:var(--cream2);font-size:.82rem;margin-bottom:14px;line-height:1.5}
+    .stars-row{font-size:1.8rem;letter-spacing:4px;margin-bottom:14px;display:block}
+    .btn-review{
+      display:inline-flex;align-items:center;gap:8px;
+      background:var(--white);color:var(--black);
+      border:2.5px solid var(--black);border-radius:10px;
+      padding:10px 20px;font-family:'Bebas Neue',cursive;
+      font-size:1rem;letter-spacing:2px;cursor:pointer;
+      box-shadow:4px 4px 0 var(--yellow);text-decoration:none;
+      -webkit-tap-highlight-color:transparent;
+      transition:transform .1s,box-shadow .1s;
+    }
+    .btn-review:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--yellow)}
+    .google-g{width:20px;height:20px;flex-shrink:0}
+
+    /* ── FOOTER ── */
+    footer{
+      position:relative;z-index:1;background:#0e0906;
+      text-align:center;padding:16px;
+      color:var(--cream2);font-size:.72rem;line-height:1.6;
+    }
+    footer strong{color:var(--yellow)}
+
+    /* ── TOAST ── */
+    .toast{
+      position:fixed;top:16px;left:50%;
+      transform:translateX(-50%) translateY(-70px);
+      background:var(--black);color:var(--yellow);
+      border:2px solid var(--yellow);
+      padding:9px 18px;border-radius:30px;
+      font-family:'Bebas Neue',cursive;font-size:.95rem;letter-spacing:2px;
+      z-index:200;white-space:nowrap;pointer-events:none;
+      transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    .toast.show{transform:translateX(-50%) translateY(0)}
+
+    /* ── FONT FALLBACK enquanto carrega ── */
+    .bebas{font-family:'Bebas Neue',cursive}
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-flames">🔥 🔥 🔥</div>
+  <img class="logo-img" src="db.PNG" alt="Desmantelo's Burguer" width="200" height="200"/>
+  <p class="tagline">— UM DESMANTELO DE SABORES —</p>
+</header>
+
+<div class="banner">📍 Pedidos pelo WhatsApp &nbsp;·&nbsp; Seg–Dom 18h às 23h</div>
+
+<!-- MENU -->
+<main>
+  <h2 class="section-title">CARDÁPIO</h2>
+  <div id="menu"></div>
+</main>
+
+<!-- AVALIAÇÃO GOOGLE -->
+<section class="review-section" aria-label="Avalie a Desmantelo's">
+  <h3>GOSTOU? AVALIA A GENTE! 🙏</h3>
+  <p>Sua opinião nos ajuda a chegar em mais pessoas<br/>e a continuar desmantando de sabor.</p>
+  <span class="stars-row" aria-hidden="true">⭐⭐⭐⭐⭐</span>
+  <a class="btn-review"
+     href="https://g.page/r/CcPBkJf0x6wEEBI/review"
+     target="_blank" rel="noopener noreferrer"
+     aria-label="Avaliar no Google">
+    <!-- Google G SVG inline — zero request -->
+    <svg class="google-g" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+    </svg>
+    AVALIAR NO GOOGLE
+  </a>
+</section>
+
+<footer>
+  <strong>Desmantelo's Burguer</strong><br/>
+  Hambúrguer Artesanal na Brasa<br/>
+  © 2026 — Um Desmantelo de Sabores
+</footer>
+
+<!-- CARRINHO FLUTUANTE -->
+<div class="cart-float" id="cartFloat">
+  <div class="cart-info">
+    <div class="cart-count" id="cartCount">0 ITENS</div>
+    <div class="cart-items-list" id="cartItemsList"></div>
+  </div>
+  <div class="cart-total" id="cartTotal">R$ 0,00</div>
+  <div class="cart-actions">
+    <button class="btn-enviar" id="btnVerPedido">🛒 VER PEDIDO</button>
+    <button class="btn-limpar" onclick="clearCart()">limpar tudo</button>
+  </div>
+</div>
+
+<!-- DRAWER DO PEDIDO -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Seu pedido">
+  <div class="drawer-header">
+    <h3>🔥 SEU PEDIDO</h3>
+    <button class="btn-close-drawer" onclick="closeDrawer()" aria-label="Fechar">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-footer">
+    <span class="drawer-total" id="drawerTotal">Total: R$ 0,00</span>
+    <button class="btn-fechar-pedir" onclick="enviarWhatsApp()">🟢 PEDIR NO WHATSAPP</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   ⚙️  CONFIGURAÇÃO
+   ═══════════════════════════════════════════════════════ */
+const WHATSAPP = "5581866903460"; /* DDI+DDD+número */
+
+const ADICIONAIS = [
+  {id:"bacon",    nome:"Bacon extra",        preco:4.00},
+  {id:"cheddar",  nome:"Cheddar extra",      preco:3.00},
+  {id:"ovo",      nome:"Ovo frito",          preco:3.00},
+  {id:"jalapeno", nome:"Jalapeño",           preco:2.50},
+  {id:"cogumelo", nome:"Cogumelo grelhado",  preco:4.50},
+  {id:"dobro",    nome:"Dobrar o blend",     preco:8.00},
+];
+
+const CARDAPIO = [
+  {
+    id:1,nome:"Vixe Maria",preco:42.00,novo:true,
+    descricao:"Carne bovina 160g assada na brasa, queijo coalho na brasa, bacon crocante, doce de leite cremoso e molho defumado exclusivo da casa.",
+    imagem:""
+  },
+  {
+    id:2,nome:"Clássico do Sertão",preco:32.00,novo:false,
+    descricao:"Blend 160g, queijo muçarela, alface americana, tomate, cebola crispy e maionese da casa no pão artesanal.",
+    imagem:""
+  },
+  {
+    id:3,nome:"Coronel Picante",preco:36.00,novo:false,
+    descricao:"Blend 160g, cheddar derretido, jalapeño, pimenta biquinho, molho chipotle e cebola caramelizada.",
+    imagem:""
+  },
+  {
+    id:4,nome:"Forró da Meia-Noite",preco:38.00,novo:false,
+    descricao:"Blend duplo 2x120g, queijo prato, bacon, pepino em conserva e molho especial da casa.",
+    imagem:""
+  },
+  {
+    id:5,nome:"Cabra Safado",preco:34.00,novo:false,
+    descricao:"Blend 160g, queijo coalho grelhado, coentro, vinagrete nordestino e molho de leite de coco.",
+    imagem:""
+  },
+  {
+    id:6,nome:"Xô Saudade",preco:30.00,novo:false,
+    descricao:"Blend 160g, muçarela, tomate, alface, milho e maionese temperada. O clássico de sempre.",
+    imagem:""
+  },
+  {
+    id:7,nome:"Bode na Brasa",preco:40.00,novo:false,
+    descricao:"Blend de carne + linguiça toscana 180g, queijo coalho, cebola roxa grelhada e vinagrete de pimenta.",
+    imagem:""
+  },
+  {
+    id:8,nome:"Arretado",preco:45.00,novo:false,
+    descricao:"O maior! Blend triplo 3x120g, três queijos, bacon, ovo, cebola crispy e todos os molhos.",
+    imagem:""
+  },
+];
+
+/* ═══════════════════════════════════════════════════════
+   🛒  ESTADO
+   ═══════════════════════════════════════════════════════ */
+let cart = [];
+
+/* ═══════════════════════════════════════════════════════
+   🖼️  RENDER CARDÁPIO
+   ═══════════════════════════════════════════════════════ */
+function render(){
+  const frag = document.createDocumentFragment();
+  CARDAPIO.forEach(b => {
+    const card = document.createElement("article");
+    card.className = "burger-card";
+    card.innerHTML = `
+      <div class="card-img-wrap">
+        ${b.imagem
+          ? `<img src="${b.imagem}" alt="${b.nome}" loading="lazy" decoding="async" width="580" height="190"/>`
+          : `<div class="img-placeholder"><span>🍔</span><span>FOTO EM BREVE</span></div>`}
+        ${b.novo ? `<span class="badge-new">🔥 NOVIDADE</span>` : ""}
+      </div>
+      <div class="card-body">
+        <div class="card-top">
+          <div class="burger-name">${b.nome}</div>
+          <div class="burger-price">R$&nbsp;${fmt(b.preco)}</div>
+        </div>
+        <p class="burger-desc">${b.descricao}</p>
+
+        <button class="adicionais-toggle" onclick="togglePanel(${b.id})" aria-expanded="false" aria-controls="panel-${b.id}">
+          ＋ Adicionais &amp; observações
+        </button>
+
+        <div class="adicionais-panel" id="panel-${b.id}" role="group">
+          <h4>🧀 ADICIONAIS</h4>
+          ${ADICIONAIS.map(a=>`
+            <label class="adicional-item">
+              <input type="checkbox" id="add-${b.id}-${a.id}" value="${a.id}"/>
+              <span>${a.nome}</span>
+              <span class="adicional-price">+R$&nbsp;${fmt(a.preco)}</span>
+            </label>`).join("")}
+          <span class="obs-label">✏️ OBSERVAÇÕES</span>
+          <textarea class="obs-input" id="obs-${b.id}" rows="2" placeholder="Ex: sem cebola, ponto da carne…"></textarea>
+        </div>
+
+        <button class="btn-pedir" onclick="addToCart(${b.id})">🔥 ADICIONAR AO PEDIDO</button>
+      </div>`;
+    frag.appendChild(card);
+  });
+  document.getElementById("menu").appendChild(frag);
+}
+
+function togglePanel(id){
+  const panel = document.getElementById(`panel-${id}`);
+  const btn   = panel.previousElementSibling;
+  const open  = panel.classList.toggle("open");
+  btn.setAttribute("aria-expanded", open);
+}
+
+/* ═══════════════════════════════════════════════════════
+   ➕  ADD TO CART
+   ═══════════════════════════════════════════════════════ */
+function addToCart(bid){
+  const burger = CARDAPIO.find(b => b.id === bid);
+  const adds   = ADICIONAIS.filter(a => document.getElementById(`add-${bid}-${a.id}`)?.checked);
+  const obs    = document.getElementById(`obs-${bid}`)?.value.trim() || "";
+
+  cart.push({id: Date.now(), burger, adicionais: adds, obs});
+
+  /* reset */
+  ADICIONAIS.forEach(a => { const el = document.getElementById(`add-${bid}-${a.id}`); if(el) el.checked = false; });
+  const obsEl = document.getElementById(`obs-${bid}`); if(obsEl) obsEl.value = "";
+  document.getElementById(`panel-${bid}`)?.classList.remove("open");
+
+  updateCartUI();
+  showToast(`${burger.nome} adicionado! 🔥`);
+}
+
+/* ═══════════════════════════════════════════════════════
+   🗑️  REMOVER ITEM
+   ═══════════════════════════════════════════════════════ */
+function removeItem(itemId){
+  cart = cart.filter(i => i.id !== itemId);
+  updateCartUI();
+  renderDrawer();
+  if(cart.length === 0) closeDrawer();
+}
+
+/* ═══════════════════════════════════════════════════════
+   🔄  UPDATE UI
+   ═══════════════════════════════════════════════════════ */
+function calcTotal(){ return cart.reduce((s,i) => s + i.burger.preco + i.adicionais.reduce((sa,a)=>sa+a.preco,0), 0); }
+function fmt(v){ return v.toFixed(2).replace(".",","); }
+
+function updateCartUI(){
+  const float = document.getElementById("cartFloat");
+  if(cart.length === 0){ float.classList.remove("visible"); return; }
+  float.classList.add("visible");
+  document.getElementById("cartCount").textContent   = `${cart.length} ${cart.length===1?"ITEM":"ITENS"}`;
+  document.getElementById("cartItemsList").textContent = cart.map(i=>i.burger.nome).join(" · ");
+  document.getElementById("cartTotal").textContent   = `R$ ${fmt(calcTotal())}`;
+}
+
+function clearCart(){
+  cart = [];
+  updateCartUI();
+  closeDrawer();
+}
+
+/* ═══════════════════════════════════════════════════════
+   🗂️  DRAWER
+   ═══════════════════════════════════════════════════════ */
+function renderDrawer(){
+  const body = document.getElementById("drawerBody");
+  if(cart.length === 0){ body.innerHTML = "<p style='text-align:center;padding:20px;color:#888;font-size:.85rem'>Nenhum item ainda.</p>"; }
+  else {
+    body.innerHTML = cart.map(i => {
+      const subtotal = i.burger.preco + i.adicionais.reduce((s,a)=>s+a.preco,0);
+      return `
+        <div class="order-item">
+          <button class="btn-remove" onclick="removeItem(${i.id})" aria-label="Remover ${i.burger.nome}">✕</button>
+          <div class="order-item-info">
+            <div class="order-item-name">${i.burger.nome}</div>
+            ${i.adicionais.length ? `<div class="order-item-adds">➕ ${i.adicionais.map(a=>a.nome).join(", ")}</div>` : ""}
+            ${i.obs ? `<div class="order-item-obs">📝 ${i.obs}</div>` : ""}
+          </div>
+          <div class="order-item-price">R$&nbsp;${fmt(subtotal)}</div>
+        </div>`;
+    }).join("");
+  }
+  document.getElementById("drawerTotal").textContent = `Total: R$ ${fmt(calcTotal())}`;
+}
+
+function openDrawer(){
+  renderDrawer();
+  document.getElementById("drawer").classList.add("open");
+  document.getElementById("drawerOverlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function closeDrawer(){
+  document.getElementById("drawer").classList.remove("open");
+  document.getElementById("drawerOverlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+document.getElementById("btnVerPedido").addEventListener("click", openDrawer);
+
+/* ═══════════════════════════════════════════════════════
+   📲  WHATSAPP
+   ═══════════════════════════════════════════════════════ */
+function enviarWhatsApp(){
+  if(!cart.length) return;
+  let msg = "🔥 *PEDIDO — DESMANTELO'S BURGUER* 🔥\n\n";
+  cart.forEach((i,n) => {
+    const sub = i.burger.preco + i.adicionais.reduce((s,a)=>s+a.preco,0);
+    msg += `*${n+1}. ${i.burger.nome}* — R$ ${fmt(i.burger.preco)}\n`;
+    if(i.adicionais.length) msg += `   ➕ ${i.adicionais.map(a=>a.nome).join(", ")}\n`;
+    if(i.obs) msg += `   📝 ${i.obs}\n`;
+    msg += `   Subtotal: R$ ${fmt(sub)}\n\n`;
+  });
+  msg += `──────────────────\n💰 *TOTAL: R$ ${fmt(calcTotal())}*\n──────────────────\n\nAguardo confirmação! 🤠`;
+  window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, "_blank");
+}
+
+/* ═══════════════════════════════════════════════════════
+   🍞  TOAST
+   ═══════════════════════════════════════════════════════ */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2000);
+}
+
+/* INIT */
+render();
+</script>
+</body>
+</html>
