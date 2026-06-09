@@ -358,13 +358,56 @@
     .btn-pedir-bat:active{transform:translate(2px,2px);box-shadow:none}
 
     /* ── BEBIDAS ── */
-    .bebidas-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-    .bebida-card{background:var(--white);border:2px solid var(--black);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:5px;box-shadow:3px 3px 0 var(--black);}
-    .bebida-icon{font-size:1.4rem;text-align:center;}
-    .bebida-nome{font-family:'Bebas Neue',cursive;font-size:.88rem;letter-spacing:1px;color:var(--red-dark);text-align:center;line-height:1.2;}
-    .bebida-preco{font-family:'Bebas Neue',cursive;font-size:1.1rem;background:var(--yellow);border:2px solid var(--black);border-radius:5px;padding:1px 0;text-align:center;box-shadow:2px 2px 0 var(--black);}
-    .btn-add-beb{background:var(--red);color:var(--yellow);border:2px solid var(--black);border-radius:7px;padding:6px;font-family:'Bebas Neue',cursive;font-size:.85rem;letter-spacing:2px;cursor:pointer;box-shadow:2px 2px 0 var(--black);-webkit-tap-highlight-color:transparent;}
-    .btn-add-beb:active{transform:translate(2px,2px);box-shadow:none}
+    .bebidas-lista{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .bebida-row{
+      background:var(--white);border:2px solid var(--black);
+      border-radius:10px;padding:10px 12px;
+      display:flex;align-items:center;gap:8px;
+      box-shadow:3px 3px 0 var(--black);
+      min-height:52px;
+      transition:border-color .12s;
+    }
+    .bebida-row.has-qty{border-color:var(--red);}
+    .bebida-row-icon{font-size:1.2rem;flex-shrink:0;}
+    .bebida-row-info{flex:1;min-width:0;}
+    .bebida-row-nome{
+      font-family:'Bebas Neue',cursive;font-size:.82rem;
+      letter-spacing:1px;color:var(--red-dark);line-height:1.1;
+    }
+    .bebida-row-preco{
+      font-size:.72rem;color:#5a4a30;font-weight:700;margin-top:1px;
+    }
+    /* botão adicionar inicial */
+    .btn-beb-add{
+      background:var(--red);color:var(--yellow);
+      border:2px solid var(--black);border-radius:7px;
+      padding:5px 10px;font-family:'Bebas Neue',cursive;
+      font-size:.8rem;letter-spacing:1px;cursor:pointer;
+      flex-shrink:0;box-shadow:2px 2px 0 var(--black);
+      -webkit-tap-highlight-color:transparent;
+      transition:background .1s;
+    }
+    .btn-beb-add:hover{background:var(--red-dark);}
+    .btn-beb-add:active{transform:translate(2px,2px);box-shadow:none;}
+    /* seletor de quantidade */
+    .beb-qty-ctrl{
+      display:flex;align-items:center;gap:4px;flex-shrink:0;
+    }
+    .btn-beb-dec,.btn-beb-inc{
+      background:var(--black);color:var(--yellow);
+      border:2px solid var(--black);border-radius:6px;
+      width:28px;height:28px;font-size:1rem;font-weight:800;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;
+      -webkit-tap-highlight-color:transparent;
+      transition:background .1s;flex-shrink:0;
+    }
+    .btn-beb-dec:hover{background:var(--red-dark);border-color:var(--red-dark);}
+    .btn-beb-inc:hover{background:var(--red);border-color:var(--red);}
+    .btn-beb-dec:active,.btn-beb-inc:active{transform:scale(.92);}
+    .beb-qty-num{
+      font-family:'Bebas Neue',cursive;font-size:1.1rem;
+      color:var(--black);min-width:20px;text-align:center;line-height:1;
+    }
 
     /* ── CART FLOAT ── */
     .cart-float{position:fixed;bottom:0;left:0;right:0;background:var(--black);border-top:4px solid var(--yellow);padding:10px 16px;display:flex;align-items:center;gap:10px;z-index:100;transform:translateY(100%);transition:transform .28s cubic-bezier(.34,1.56,.64,1);will-change:transform;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
@@ -478,7 +521,7 @@
       <div class="section-head-title">🥤 BEBIDAS</div>
       <div class="section-head-line"></div>
     </div>
-    <div id="menu-bebidas" class="bebidas-grid"></div>
+    <div id="menu-bebidas" class="bebidas-lista"></div>
   </section>
 </main>
 
@@ -659,6 +702,7 @@ let custBurgerId=null;
 let custTierIdx=0;
 let custAdds=new Set();
 const batataSel={};
+const bebidaQtd={}; // {bid: quantidade} — estado independente do cart
 
 /* ═══════════════════════════════════════
    🖼️  RENDERS
@@ -742,21 +786,6 @@ function renderBatatas(){
     frag.appendChild(div);
   });
   document.getElementById("menu-batatas").appendChild(frag);
-}
-
-function renderBebidas(){
-  const frag=document.createDocumentFragment();
-  BEBIDAS.forEach(b=>{
-    const div=document.createElement("div");
-    div.className="bebida-card";
-    div.innerHTML=`
-      <div class="bebida-icon">${b.emoji}</div>
-      <div class="bebida-nome">${b.nome}</div>
-      <div class="bebida-preco">R$&nbsp;${fmt(b.preco)}</div>
-      <button class="btn-add-beb" onclick="addBebida('${b.id}')">+ ADICIONAR</button>`;
-    frag.appendChild(div);
-  });
-  document.getElementById("menu-bebidas").appendChild(frag);
 }
 
 /* ═══════════════════════════════════════
@@ -900,17 +929,92 @@ function addCombo(cid){
   cart.push({id:Date.now(),nome:c.nome,preco:c.preco,detalhe:c.itens.join(" + "),obs:"",adds:[]});
   updateCartUI();showToast(`${c.nome} adicionado! 🔥`);
 }
-function addBebida(bid){
+function renderBebidas(){
+  const frag=document.createDocumentFragment();
+  BEBIDAS.forEach(b=>{
+    bebidaQtd[b.id]=0;
+    const div=document.createElement("div");
+    div.className="bebida-row";
+    div.id=`brow-${b.id}`;
+    div.innerHTML=`
+      <span class="bebida-row-icon">${b.emoji}</span>
+      <div class="bebida-row-info">
+        <div class="bebida-row-nome">${b.nome}</div>
+        <div class="bebida-row-preco">R$&nbsp;${fmt(b.preco)}</div>
+      </div>
+      <button class="btn-beb-add" id="beb-add-${b.id}" onclick="bebidaIncrement('${b.id}')">+&nbsp;ADD</button>
+      <div class="beb-qty-ctrl" id="beb-ctrl-${b.id}" style="display:none">
+        <button class="btn-beb-dec" onclick="bebidaDecrement('${b.id}')">−</button>
+        <span class="beb-qty-num" id="beb-num-${b.id}">0</span>
+        <button class="btn-beb-inc" onclick="bebidaIncrement('${b.id}')">+</button>
+      </div>`;
+    frag.appendChild(div);
+  });
+  document.getElementById("menu-bebidas").appendChild(frag);
+}
+
+function bebidaIncrement(bid){
+  bebidaQtd[bid]=(bebidaQtd[bid]||0)+1;
+  atualizarBebidaUI(bid);
+  syncBebidaCart(bid);
   const b=BEBIDAS.find(x=>x.id===bid);
-  cart.push({id:Date.now(),nome:b.nome,preco:b.preco,detalhe:"",obs:"",adds:[]});
-  updateCartUI();showToast(`${b.nome} adicionado! 🥤`);
+  showToast(`${b.nome} adicionado! 🥤`);
+}
+
+function bebidaDecrement(bid){
+  if(!bebidaQtd[bid]) return;
+  bebidaQtd[bid]--;
+  atualizarBebidaUI(bid);
+  syncBebidaCart(bid);
+}
+
+function atualizarBebidaUI(bid){
+  const qty=bebidaQtd[bid]||0;
+  const row=document.getElementById(`brow-${bid}`);
+  const addBtn=document.getElementById(`beb-add-${bid}`);
+  const ctrl=document.getElementById(`beb-ctrl-${bid}`);
+  const num=document.getElementById(`beb-num-${bid}`);
+  if(qty===0){
+    addBtn.style.display="";
+    ctrl.style.display="none";
+    row?.classList.remove("has-qty");
+  } else {
+    addBtn.style.display="none";
+    ctrl.style.display="flex";
+    num.textContent=qty;
+    row?.classList.add("has-qty");
+  }
+}
+
+function syncBebidaCart(bid){
+  // remove entradas anteriores desta bebida do cart
+  cart=cart.filter(i=>i.bebidaId!==bid);
+  const qty=bebidaQtd[bid]||0;
+  if(qty>0){
+    const b=BEBIDAS.find(x=>x.id===bid);
+    cart.push({
+      id:`beb-${bid}`,
+      bebidaId:bid,
+      nome:`${b.nome}${qty>1?` ×${qty}`:""}`,
+      preco:b.preco*qty,
+      detalhe:"",obs:"",adds:[],
+      _qtdLabel:qty>1?` ×${qty}`:""
+    });
+  }
+  updateCartUI();
 }
 
 /* ═══════════════════════════════════════
    🗑️  REMOVER
    ═══════════════════════════════════════ */
 function removeItem(iid){
-  cart=cart.filter(i=>i.id!==iid);
+  const item=cart.find(i=>i.id==iid);
+  // se for bebida, resetar qtd e UI
+  if(item?.bebidaId){
+    bebidaQtd[item.bebidaId]=0;
+    atualizarBebidaUI(item.bebidaId);
+  }
+  cart=cart.filter(i=>i.id!=iid);
   updateCartUI();renderDrawer();
   if(!cart.length)closeDrawer();
 }
@@ -928,7 +1032,11 @@ function updateCartUI(){
   document.getElementById("cartItemsList").textContent=cart.map(i=>i.nome).join(" · ");
   document.getElementById("cartTotal").textContent=`R$ ${fmt(calcTotal())}`;
 }
-function clearCart(){cart=[];updateCartUI();closeDrawer();}
+function clearCart(){
+  // resetar qtd e UI de todas as bebidas
+  BEBIDAS.forEach(b=>{ bebidaQtd[b.id]=0; atualizarBebidaUI(b.id); });
+  cart=[];updateCartUI();closeDrawer();
+}
 
 /* ═══════════════════════════════════════
    🗂️  DRAWER PEDIDO
@@ -959,7 +1067,10 @@ function enviarWhatsApp(){
   if(!cart.length)return;
   let msg="🔥 *PEDIDO — DESMANTELO'S BURGUER* 🔥\n\n";
   cart.forEach((i,n)=>{
-    msg+=`*${n+1}. ${i.nome}* — R$ ${fmt(i.preco)}\n`;
+    const nomeDisplay=i.bebidaId&&bebidaQtd[i.bebidaId]>1
+      ?`${BEBIDAS.find(x=>x.id===i.bebidaId).nome} ×${bebidaQtd[i.bebidaId]}`
+      :i.nome;
+    msg+=`*${n+1}. ${nomeDisplay}* — R$ ${fmt(i.preco)}\n`;
     if(i.detalhe) msg+=`   ➕ ${i.detalhe}\n`;
     if(i.obs)     msg+=`   📝 ${i.obs}\n`;
     msg+="\n";
