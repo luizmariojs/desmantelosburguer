@@ -1,6 +1,13 @@
 # Documentação interna
 PROJETO.md
 PROJETO-V2.md
+PRD-*.md
+SPEC-*.md
+TASKS-*.md
+claude.md
+
+# Material de referência (não faz parte do site publicado)
+assets/
 
 # Sistema operacional
 .DS_Store

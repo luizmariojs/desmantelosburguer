@@ -9,9 +9,84 @@
     <meta name="theme-color" content="#1A1008" />
     <meta
       name="description"
-      content="Desmantelo's Burguer — Hambúrguer Artesanal na Brasa. Peça pelo WhatsApp!"
+      content="Hambúrguer artesanal na brasa em Barreiros-PE. Vixe Maria, Rei do Cangaço e mais 6 sabores no fogo. Peça pelo WhatsApp, qui a dom, 19h–23h."
     />
-    <title>Desmantelo's Burguer — Cardápio</title>
+    <title>Desmantelo's Burguer — Cardápio Online | Barreiros-PE</title>
+    <link rel="canonical" href="https://cardapio.desmantelosburguer.com.br/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Desmantelo's Burguer" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:url" content="https://cardapio.desmantelosburguer.com.br/" />
+    <meta property="og:title" content="Desmantelo's Burguer — Cardápio Online" />
+    <meta
+      property="og:description"
+      content="Hambúrguer artesanal na brasa em Barreiros-PE. Peça pelo WhatsApp."
+    />
+    <meta
+      property="og:image"
+      content="https://cardapio.desmantelosburguer.com.br/img/logo-desmantelosburguer.png"
+    />
+    <meta property="og:image:width" content="800" />
+    <meta property="og:image:height" content="820" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Desmantelo's Burguer — Cardápio Online" />
+    <meta
+      name="twitter:description"
+      content="Hambúrguer artesanal na brasa em Barreiros-PE. Peça pelo WhatsApp."
+    />
+    <meta
+      name="twitter:image"
+      content="https://cardapio.desmantelosburguer.com.br/img/logo-desmantelosburguer.png"
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Restaurant",
+        "name": "Desmantelo's Burguer",
+        "url": "https://cardapio.desmantelosburguer.com.br/",
+        "image": ["https://cardapio.desmantelosburguer.com.br/img/logo-desmantelosburguer.png"],
+        "telephone": "+55 81 98669-0346",
+        "priceRange": "R$20-R$40",
+        "servesCuisine": ["Hamburgueria", "Fast Food"],
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "R. Marechal Rondon, 71",
+          "addressLocality": "Barreiros",
+          "addressRegion": "PE",
+          "postalCode": "55560-000",
+          "addressCountry": "BR"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": -8.8151393,
+          "longitude": -35.1947957
+        },
+        "acceptsReservations": false,
+        "paymentAccepted": "Dinheiro, Pix, Cartão de débito, Cartão de crédito",
+        "currenciesAccepted": "BRL",
+        "openingHoursSpecification": [
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Thursday", "Friday", "Saturday", "Sunday"],
+            "opens": "19:00",
+            "closes": "23:00"
+          }
+        ],
+        "sameAs": [
+          "https://www.instagram.com/desmantelosburguer/",
+          "https://www.tiktok.com/@desmantelosburguer"
+        ],
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "reviewCount": "31"
+        },
+        "hasMenu": "https://cardapio.desmantelosburguer.com.br/"
+      }
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1304,7 +1379,7 @@
         alt="Desmantelo's Burguer"
       />
       <div class="header-text">
-        <div class="header-name">DESMANTELO'S BURGUER</div>
+        <h1 class="header-name">DESMANTELO'S BURGUER</h1>
         <div class="header-sub">🔥 Hambúrguer Artesanal na Brasa</div>
       </div>
       <div class="header-hours">QUI–DOM<br />19H–23H</div>
@@ -1324,7 +1399,7 @@
       <section id="burgers">
         <div class="section-head">
           <div class="section-head-line"></div>
-          <div class="section-head-title">🍔 HAMBÚRGUERES</div>
+          <h2 class="section-head-title">🍔 HAMBÚRGUERES</h2>
           <div class="section-head-line"></div>
         </div>
         <div id="menu-burgers"></div>
@@ -1335,7 +1410,7 @@
       <section id="combos">
         <div class="section-head">
           <div class="section-head-line"></div>
-          <div class="section-head-title">🔥 COMBOS</div>
+          <h2 class="section-head-title">🔥 COMBOS</h2>
           <div class="section-head-line"></div>
         </div>
         <div id="menu-combos"></div>
@@ -1346,7 +1421,7 @@
       <section id="batatas">
         <div class="section-head">
           <div class="section-head-line"></div>
-          <div class="section-head-title">🍟 BATATAS</div>
+          <h2 class="section-head-title">🍟 BATATAS</h2>
           <div class="section-head-line"></div>
         </div>
         <div id="menu-batatas" class="batata-grid"></div>
@@ -1357,7 +1432,7 @@
       <section id="bebidas">
         <div class="section-head">
           <div class="section-head-line"></div>
-          <div class="section-head-title">🥤 BEBIDAS</div>
+          <h2 class="section-head-title">🥤 BEBIDAS</h2>
           <div class="section-head-line"></div>
         </div>
         <div id="menu-bebidas" class="bebidas-lista"></div>
@@ -1485,158 +1560,20 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+    <script src="cardapio.js"></script>
     <script>
       /* ═══════════════════════════════════════
    ⚙️  CONFIGURAÇÃO
    ═══════════════════════════════════════ */
       const WHATSAPP = "5581986690346";
 
-      // badges disponíveis: "novidade" | "vendido" | "favorito" | "recheado" | "recomendado" | ""
-      const ADICIONAIS = [
-        { id: "bacon", nome: "Bacon", preco: 4.0 },
-        { id: "blend", nome: "Blend de carne 130g", preco: 7.0 },
-        { id: "cheddar", nome: "Queijo cheddar ou ovo", preco: 2.0 },
-        { id: "cebola", nome: "Cebola caramelizada", preco: 3.0 },
-        { id: "molched", nome: "Molho de cheddar artesanal", preco: 2.0 },
-        { id: "molesp", nome: "Molho especial", preco: 3.0 },
-        { id: "barbecue", nome: "Molho barbecue", preco: 2.0 },
-        { id: "cream", nome: "Cream cheese", preco: 3.0 },
-        { id: "geleia", nome: "Geleia de pimenta", preco: 3.0 },
-      ];
-
-      const CARDAPIO = [
-        {
-          id: 1,
-          nome: "Xodozinho",
-          badge: "",
-          imagem: "img/hamburgueres/xodozinho.png",
-          preco: { burger: 16.99, combo: 22.0, completo: 28.0 },
-          descricao:
-            "Pão Brioche amanteigado, blend 100g assado na brasa, queijo cheddar e molho especial.",
-        },
-        {
-          id: 2,
-          nome: "Arretado",
-          badge: "vendido",
-          imagem: "img/hamburgueres/arretado.png",
-          preco: { burger: 18.99, combo: 24.0, completo: 30.0 },
-          descricao:
-            "Pão Brioche amanteigado, blend 130g assado na brasa, queijo cheddar, molho especial e salada.",
-        },
-        {
-          id: 3,
-          nome: "Lampião",
-          badge: "favorito",
-          imagem: "img/hamburgueres/lampiao.png",
-          preco: { burger: 21.99, combo: 27.0, completo: 33.0 },
-          descricao:
-            "Pão Brioche amanteigado, blend 130g assado na brasa, queijo cheddar, bacon, molho especial e salada.",
-        },
-        {
-          id: 4,
-          nome: "Matuto",
-          badge: "",
-          imagem: "img/hamburgueres/matuto.png",
-          preco: { burger: 22.99, combo: 28.0, completo: 34.0 },
-          descricao:
-            "Pão australiano, blend 160g assado na brasa, queijo cheddar (2 fatias), creme de cheddar artesanal e cebola caramelizada.",
-        },
-        {
-          id: 5,
-          nome: "Vixe Maria",
-          badge: "novidade",
-          imagem: "img/hamburgueres/vixe-maria.png",
-          preco: { burger: 23.99, combo: 29.0, completo: 35.0 },
-          descricao:
-            "Pão Brioche amanteigado, blend 160g assado na brasa, queijo coalho, doce de leite, bacon e molho especial.",
-        },
-        {
-          id: 6,
-          nome: "Maria Bonita",
-          badge: "",
-          imagem: "img/hamburgueres/maria-bonita.png",
-          preco: { burger: 25.99, combo: 31.0, completo: 37.0 },
-          descricao:
-            "Pão Brioche amanteigado, 2 blends 130g assados na brasa, queijo cheddar (2 fatias), molho especial e salada.",
-        },
-        {
-          id: 7,
-          nome: "Rei do Cangaço",
-          badge: "",
-          imagem: "img/hamburgueres/rei-cangaco.png",
-          preco: { burger: 28.99, combo: 34.0, completo: 40.0 },
-          descricao:
-            "Pão Brioche amanteigado, blend de 130g, queijo cheddar, costela desfiada, cream cheese, molho especial e salada.",
-        },
-        {
-          id: 8,
-          nome: "Desmantelado",
-          badge: "recheado",
-          imagem: "img/hamburgueres/desmantelado.png",
-          preco: { burger: 28.99, combo: 34.0, completo: 40.0 },
-          descricao:
-            "Pão Brioche amanteigado, 2 blends de 130g assados na brasa, queijo cheddar (2 fatias), bacon, molho especial.",
-        },
-      ];
-
-      const COMBOS = [
-        {
-          id: "c1",
-          nome: "Combo Lampião e Maria Bonita",
-          preco: 59.99,
-          emoji: "💑",
-          descricao: "O casal mais famoso do sertão num combo só.",
-          itens: [
-            "2 Burgers Lampião",
-            "1 Porção de Batata G",
-            "1 Refrigerante 1L",
-          ],
-        },
-        {
-          id: "c2",
-          nome: "Combo Cangaceiros",
-          preco: 96.99,
-          emoji: "🤠",
-          descricao: "Pra galera com fome de cangaceiro.",
-          itens: [
-            "4 Burgers Arretado",
-            "1 Porção de Batata Frita GG",
-            "1 Refrigerante 2L",
-          ],
-        },
-      ];
-      const BATATAS = [
-        {
-          id: "bf",
-          nome: "Batata Frita",
-          desc: "Crocante e sequinha.",
-          emoji: "🍟",
-          tamanhos: [
-            { label: "P", preco: 7.0 },
-            { label: "G", preco: 10.0 },
-          ],
-        },
-        {
-          id: "bt",
-          nome: "Batata Turbinada",
-          desc: "Batata frita, creme de cheddar artesanal e farofa de bacon.",
-          emoji: "🧀",
-          tamanhos: [
-            { label: "M", preco: 12.0 },
-            { label: "G", preco: 20.0 },
-          ],
-        },
-      ];
-      const BEBIDAS = [
-        { id: "b1", nome: "Refrigerante lata", preco: 6.0, emoji: "🥤" },
-        { id: "b2", nome: "Refrigerante 250ml", preco: 4.0, emoji: "🥤" },
-        { id: "b3", nome: "Antartica 1L", preco: 10.0, emoji: "🍾" },
-        { id: "b4", nome: "Coca-Cola 1L", preco: 12.0, emoji: "🍾" },
-        { id: "b5", nome: "Água", preco: 2.0, emoji: "💧" },
-        { id: "b6", nome: "Água c/ gás", preco: 4.0, emoji: "💧" },
-        { id: "b7", nome: "H²O Limoneto", preco: 6.0, emoji: "🍋" },
-        { id: "b8", nome: "Schweppes", preco: 6.0, emoji: "🫧" },
-      ];
+      // Dados vêm de cardapio.js (fonte única, compartilhada com o PDV
+      // e com o script de sync com o Google) — ver PRD-cardapio-google-sync.md
+      const ADICIONAIS = CARDAPIO_DATA.adicionais;
+      const CARDAPIO = CARDAPIO_DATA.burgers;
+      const COMBOS = CARDAPIO_DATA.combos;
+      const BATATAS = CARDAPIO_DATA.batatas;
+      const BEBIDAS = CARDAPIO_DATA.bebidas;
 
       /* ═══════════════════════════════════════
    🏷️  BADGES
