@@ -5,6 +5,9 @@ PRD-*.md
 SPEC-*.md
 TASKS-*.md
 claude.md
+README.md
+CHANGELOG.md
+RELEASE-NOTES.md
 
 # Material de referência (não faz parte do site publicado)
 assets/

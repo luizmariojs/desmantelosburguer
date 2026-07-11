@@ -1239,6 +1239,47 @@
         justify-content: center;
         -webkit-tap-highlight-color: transparent;
       }
+      .drawer-name {
+        flex-shrink: 0;
+        padding: 10px 16px;
+        border-top: 2px dashed var(--cream2);
+      }
+      .drawer-name-label {
+        display: block;
+        font-family: "Bebas Neue", cursive;
+        font-size: 0.8rem;
+        letter-spacing: 1.5px;
+        color: var(--red-dark);
+        margin-bottom: 4px;
+      }
+      .drawer-name-input {
+        width: 100%;
+        font-family: "Nunito", system-ui, sans-serif;
+        font-weight: 800;
+        font-size: 0.95rem;
+        padding: 10px 12px;
+        border: 2px solid var(--cream2);
+        border-radius: 8px;
+        background: var(--white);
+        color: var(--black);
+        -webkit-tap-highlight-color: transparent;
+      }
+      .drawer-name-input:focus {
+        outline: none;
+        border-color: var(--gold);
+      }
+      .drawer-name-input.invalid {
+        border-color: var(--red);
+        animation: shakeName 0.3s;
+      }
+      @keyframes shakeName {
+        25% {
+          transform: translateX(-4px);
+        }
+        75% {
+          transform: translateX(4px);
+        }
+      }
       .drawer-footer {
         padding: 10px 16px;
         border-top: 2px solid var(--cream2);
@@ -1526,6 +1567,19 @@
         <button class="btn-close-drawer" onclick="closeDrawer()">✕</button>
       </div>
       <div class="drawer-body" id="drawerBody"></div>
+      <div class="drawer-name">
+        <label for="clienteNome" class="drawer-name-label"
+          >SEU NOME, PRA GENTE CHAMAR NO PEDIDO</label
+        >
+        <input
+          type="text"
+          id="clienteNome"
+          class="drawer-name-input"
+          placeholder="Como você se chama?"
+          maxlength="40"
+          autocomplete="name"
+        />
+      </div>
       <div class="drawer-footer">
         <span class="drawer-total" id="drawerTotal">Total: R$ 0,00</span>
         <button class="btn-fechar-pedir" onclick="enviarWhatsApp()">
@@ -2057,7 +2111,19 @@
    ═══════════════════════════════════════ */
       function enviarWhatsApp() {
         if (!cart.length) return;
+        const nomeInput = document.getElementById("clienteNome");
+        const nomeCliente = nomeInput.value.trim();
+        if (!nomeCliente) {
+          nomeInput.classList.remove("invalid");
+          void nomeInput.offsetWidth; // reinicia a animação se já estava inválido
+          nomeInput.classList.add("invalid");
+          nomeInput.focus();
+          showToast("Digite seu nome pra gente confirmar o pedido! 🤠");
+          return;
+        }
+        nomeInput.classList.remove("invalid");
         let msg = "🔥 *PEDIDO — DESMANTELO'S BURGUER* 🔥\n\n";
+        msg += `👤 *Cliente:* ${nomeCliente}\n\n`;
         cart.forEach((i, n) => {
           const nomeDisplay =
             i.bebidaId && bebidaQtd[i.bebidaId] > 1
