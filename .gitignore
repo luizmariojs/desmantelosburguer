@@ -1,9 +1,7 @@
 # Documentação interna
 PROJETO.md
 PROJETO-V2.md
-PRD-*.md
-SPEC-*.md
-TASKS-*.md
+openspec/
 claude.md
 README.md
 CHANGELOG.md
