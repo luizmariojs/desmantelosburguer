@@ -27,6 +27,7 @@
       --white:#FFFDF7;
       --text:#E8D9C4;--text2:#A89880;
       --radius:8px;
+      --receipt-width:80mm; /* trocar para 58mm se a impressora usada for a de bobina estreita */
     }
 
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -318,57 +319,31 @@
     .btn-imprimir-footer:hover{background:var(--green2);}
     .btn-imprimir-footer:disabled{opacity:.4;cursor:not-allowed;}
 
-    /* ── OVERLAY DE IMPRESSÃO ── */
-    .print-overlay{
-      position:fixed;inset:0;background:rgba(0,0,0,.8);
-      z-index:200;display:flex;align-items:center;justify-content:center;
-      opacity:0;pointer-events:none;transition:opacity .2s;
+    /* ── ÁREA DE IMPRESSÃO — invisível na tela, só aparece no @media print ── */
+    #printArea{display:none;}
+    @media print{
+      body > *:not(#printArea){display:none !important;}
+      #printArea{
+        display:block !important;
+        width:var(--receipt-width);
+        font-family:'Courier New',monospace;
+        font-size:11px;white-space:pre-wrap;
+      }
     }
-    .print-overlay.open{opacity:1;pointer-events:all;}
-    .print-modal{
-      background:var(--surface);border:2px solid var(--yellow);
-      border-radius:12px;padding:24px;width:min(360px,92vw);
-      display:flex;flex-direction:column;gap:14px;
+
+    /* ── FORMA DE PAGAMENTO ── */
+    .pagamento-row{display:flex;gap:6px;margin-bottom:10px;}
+    .btn-pagamento{
+      flex:1;padding:8px 4px;background:var(--surface2);
+      border:1.5px solid var(--border2);border-radius:var(--radius);
+      font-family:'Bebas Neue',cursive;font-size:.72rem;
+      letter-spacing:1px;color:var(--text2);cursor:pointer;
+      transition:border-color .12s,color .12s,background .12s;
+      -webkit-tap-highlight-color:transparent;
     }
-    .print-modal-title{
-      font-family:'Bebas Neue',cursive;font-size:1.2rem;
-      letter-spacing:2px;color:var(--yellow);text-align:center;
+    .btn-pagamento.selected{
+      border-color:var(--yellow);color:var(--yellow);background:#2a2010;
     }
-    .print-preview{
-      background:var(--black);border:1px solid var(--border2);
-      border-radius:6px;padding:12px;
-      font-family:'Courier New',monospace;font-size:.72rem;
-      color:var(--cream);line-height:1.5;white-space:pre;
-      overflow-x:auto;max-height:260px;overflow-y:auto;
-    }
-    .print-actions{display:flex;gap:8px;}
-    .btn-conectar{
-      flex:1;padding:10px;background:var(--surface2);
-      border:2px solid var(--border2);border-radius:var(--radius);
-      font-family:'Bebas Neue',cursive;font-size:.9rem;
-      letter-spacing:2px;color:var(--text);cursor:pointer;
-      transition:border-color .12s,color .12s;
-    }
-    .btn-conectar:hover{border-color:var(--yellow);color:var(--yellow);}
-    .btn-imprimir-confirm{
-      flex:1;padding:10px;background:var(--green);
-      border:2px solid var(--green2);border-radius:var(--radius);
-      font-family:'Bebas Neue',cursive;font-size:.9rem;
-      letter-spacing:2px;color:#fff;cursor:pointer;
-      transition:background .12s;
-    }
-    .btn-imprimir-confirm:hover{background:var(--green2);}
-    .btn-fechar-modal{
-      background:none;border:none;color:var(--text2);
-      font-size:.7rem;cursor:pointer;text-align:center;
-      text-decoration:underline;font-family:'Nunito',sans-serif;
-    }
-    .status-bt{
-      font-size:.72rem;color:var(--text2);text-align:center;
-      font-family:'Nunito',sans-serif;min-height:16px;
-    }
-    .status-bt.ok{color:#4caf50;}
-    .status-bt.erro{color:var(--red);}
 
     /* ── TOAST ── */
     .toast{
@@ -516,7 +491,7 @@
       <div class="topbar-count" id="topbarCount">0 ITENS</div>
     </div>
     <button class="btn-novo-pedido" onclick="novoPedido()">🗑 NOVO</button>
-    <button class="btn-imprimir" id="btnImprimirTop" onclick="abrirImpressao()" disabled>
+    <button class="btn-imprimir" id="btnImprimirTop" onclick="imprimirCupom()" disabled>
       🖨 IMPRIMIR
     </button>
   </div>
@@ -553,8 +528,13 @@
         <span class="pedido-total-label">TOTAL</span>
         <span class="pedido-total-valor" id="pedidoTotal">R$ 0,00</span>
       </div>
+      <div class="pagamento-row" id="pagamentoRow">
+        <button class="btn-pagamento" data-forma="dinheiro" onclick="selecionarPagamento('dinheiro')">💵 DINHEIRO</button>
+        <button class="btn-pagamento" data-forma="pix" onclick="selecionarPagamento('pix')">📱 PIX</button>
+        <button class="btn-pagamento" data-forma="cartao" onclick="selecionarPagamento('cartao')">💳 CARTÃO</button>
+      </div>
       <button class="btn-imprimir-footer" id="btnImprimirFooter"
-        onclick="abrirImpressao()" disabled>
+        onclick="imprimirCupom()" disabled>
         🖨 IMPRIMIR CUPOM
       </button>
     </div>
@@ -580,19 +560,8 @@
   </div>
 </div>
 
-<!-- OVERLAY IMPRESSÃO -->
-<div class="print-overlay" id="printOverlay">
-  <div class="print-modal">
-    <div class="print-modal-title">🖨 PRÉVIA DO CUPOM</div>
-    <div class="print-preview" id="printPreview"></div>
-    <div class="status-bt" id="statusBt">Impressora não conectada</div>
-    <div class="print-actions">
-      <button class="btn-conectar" onclick="conectarBluetooth()">📶 CONECTAR</button>
-      <button class="btn-imprimir-confirm" onclick="imprimirCupom()">IMPRIMIR</button>
-    </div>
-    <button class="btn-fechar-modal" onclick="fecharImpressao()">cancelar</button>
-  </div>
-</div>
+<!-- ÁREA DE IMPRESSÃO — só fica visível durante a impressão (@media print) -->
+<pre id="printArea"></pre>
 
 <div class="toast" id="toast"></div>
 
@@ -666,8 +635,7 @@ const CATEGORIAS=[
    ═══════════════════════════════════════════ */
 let pedido=[];
 let catAtiva="burgers";
-let btDevice=null;
-let btChar=null;
+let formaPagamento=null;
 
 // estado do drawer de burger
 let drawerBurgerId=null;
@@ -896,8 +864,27 @@ function removerItem(uid){
 
 function novoPedido(){
   pedido=[];
+  formaPagamento=null;
   document.getElementById("clienteInput").value="";
+  document.querySelectorAll(".btn-pagamento").forEach(b=>b.classList.remove("selected"));
   renderPedido();
+}
+
+/* ═══════════════════════════════════════════
+   💳  FORMA DE PAGAMENTO
+   ═══════════════════════════════════════════ */
+function selecionarPagamento(forma){
+  formaPagamento=forma;
+  document.querySelectorAll(".btn-pagamento").forEach(b=>{
+    b.classList.toggle("selected",b.dataset.forma===forma);
+  });
+  atualizarBotoesImprimir();
+}
+
+function atualizarBotoesImprimir(){
+  const habilitado=pedido.length>0&&!!formaPagamento;
+  document.getElementById("btnImprimirTop").disabled=!habilitado;
+  document.getElementById("btnImprimirFooter").disabled=!habilitado;
 }
 
 /* ═══════════════════════════════════════════
@@ -908,9 +895,7 @@ function renderPedido(){
   const vazio=document.getElementById("pedidoVazio");
   const total=pedido.reduce((s,i)=>s+i.preco_total,0);
 
-  const temItens=pedido.length>0;
-  document.getElementById("btnImprimirTop").disabled=!temItens;
-  document.getElementById("btnImprimirFooter").disabled=!temItens;
+  atualizarBotoesImprimir();
 
   const qtdTotal=pedido.reduce((s,i)=>s+i.qty,0);
   document.getElementById("topbarTotal").textContent=fmt(total);
@@ -1005,95 +990,18 @@ function gerarCupom(){
   const total=pedido.reduce((s,i)=>s+i.preco_total,0);
   c+="---\n";
   c+=`TOTAL  R$ ${fmtN(total)}\n`;
+  const pagLabel={dinheiro:"Dinheiro",pix:"Pix",cartao:"Cartão"}[formaPagamento]||"";
+  if(pagLabel) c+=`Pagamento: ${pagLabel}\n`;
   c+="---\n";
   c+="Obrigado!\n";
   c+="@desmantelosburguer\n";
   return c;
 }
 
-function abrirImpressao(){
-  if(!pedido.length)return;
-  document.getElementById("printPreview").textContent=gerarCupom();
-  document.getElementById("printOverlay").classList.add("open");
-  atualizarStatusBt();
-}
-
-function fecharImpressao(){
-  document.getElementById("printOverlay").classList.remove("open");
-}
-
-function atualizarStatusBt(){
-  const el=document.getElementById("statusBt");
-  if(!navigator.bluetooth){
-    el.textContent="Web Bluetooth não suportado neste navegador.";
-    el.className="status-bt erro";
-  } else if(btChar){
-    el.textContent="✓ Impressora conectada — pronta para imprimir.";
-    el.className="status-bt ok";
-  } else {
-    el.textContent="Impressora não conectada. Clique em Conectar.";
-    el.className="status-bt";
-  }
-}
-
-async function conectarBluetooth(){
-  const el=document.getElementById("statusBt");
-  if(!navigator.bluetooth){
-    el.textContent="Web Bluetooth não suportado. Use Chrome no Android.";
-    el.className="status-bt erro";
-    return;
-  }
-  try {
-    el.textContent="Buscando impressora…";
-    el.className="status-bt";
-    btDevice=await navigator.bluetooth.requestDevice({
-      acceptAllDevices:true,
-      optionalServices:["000018f0-0000-1000-8000-00805f9b34fb"]
-    });
-    const server=await btDevice.gatt.connect();
-    const service=await server.getPrimaryService("000018f0-0000-1000-8000-00805f9b34fb");
-    btChar=await service.getCharacteristic("00002af1-0000-1000-8000-00805f9b34fb");
-    el.textContent=`✓ Conectado: ${btDevice.name||"Impressora"}`;
-    el.className="status-bt ok";
-  } catch(e){
-    el.textContent=`Erro: ${e.message}`;
-    el.className="status-bt erro";
-    btChar=null;
-  }
-}
-
-async function imprimirCupom(){
-  const cupom=gerarCupom();
-  if(!btChar){
-    // fallback: impressão pelo navegador
-    const win=window.open("","_blank","width=400,height=600");
-    win.document.write(`<pre style="font-family:monospace;font-size:12px;padding:10px">${cupom}</pre>`);
-    win.document.close();
-    win.print();
-    fecharImpressao();
-    return;
-  }
-  try {
-    const encoder=new TextEncoder();
-    // ESC/POS: init + texto + corte parcial
-    const init=new Uint8Array([0x1B,0x40]);          // ESC @  (inicializa)
-    const cut =new Uint8Array([0x1D,0x56,0x01]);      // GS V 1 (corte parcial)
-    const texto=encoder.encode(cupom+"\n\n\n");
-    const payload=new Uint8Array(init.length+texto.length+cut.length);
-    payload.set(init,0);
-    payload.set(texto,init.length);
-    payload.set(cut,init.length+texto.length);
-    // envia em chunks de 512 bytes (limite BLE)
-    const CHUNK=512;
-    for(let i=0;i<payload.length;i+=CHUNK){
-      await btChar.writeValueWithoutResponse(payload.slice(i,i+CHUNK));
-    }
-    fecharImpressao();
-    showToast("Cupom enviado para a impressora ✓");
-  } catch(e){
-    document.getElementById("statusBt").textContent=`Erro ao imprimir: ${e.message}`;
-    document.getElementById("statusBt").className="status-bt erro";
-  }
+function imprimirCupom(){
+  if(!pedido.length||!formaPagamento)return;
+  document.getElementById("printArea").textContent=gerarCupom();
+  window.print();
 }
 
 /* ═══════════════════════════════════════════
