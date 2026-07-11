@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /pdv/
 
 Sitemap: https://cardapio.desmantelosburguer.com.br/sitemap.xml
