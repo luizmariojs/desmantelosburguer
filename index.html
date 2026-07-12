@@ -121,6 +121,7 @@
       <img
         class="logo-img"
         src="img/logo-desmantelosburguer-header.webp"
+        srcset="img/logo-desmantelosburguer-header-1x.webp 1x, img/logo-desmantelosburguer-header.webp 2x"
         alt="Desmantelo's Burguer"
       />
       <div class="header-text">
@@ -239,7 +240,7 @@
             src="img/abcsites-logo.svg"
             alt="Abc Sites"
             width="100"
-            height="auto"
+            height="25"
           />
         </a>
       </address>
@@ -265,7 +266,7 @@
       id="drawerOverlay"
       onclick="closeDrawer()"
     ></div>
-    <div class="drawer" id="drawer" role="dialog" aria-modal="true">
+    <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Seu pedido">
       <div class="drawer-header">
         <h3>🔥 SEU PEDIDO</h3>
         <button class="btn-close-drawer" onclick="closeDrawer()">✕</button>
@@ -344,7 +345,7 @@
 
     <!-- DRAWER CUSTOMIZAÇÃO -->
     <div class="cust-overlay" id="custOverlay" onclick="closeCust()"></div>
-    <div class="cust-drawer" id="custDrawer" role="dialog" aria-modal="true">
+    <div class="cust-drawer" id="custDrawer" role="dialog" aria-modal="true" aria-label="Personalizar burger">
       <div class="cust-handle"></div>
       <div class="cust-header">
         <div class="cust-img" id="custImg"></div>

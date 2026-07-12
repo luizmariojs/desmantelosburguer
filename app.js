@@ -70,7 +70,7 @@
       <div class="card-img">
         ${
           b.imagem
-            ? `<img src="${b.imagem}" alt="${b.nome}" loading="lazy" decoding="async"/>`
+            ? `<img src="${b.imagem}" srcset="${b.imagem.replace(".webp", "-1x.webp")} 1x, ${b.imagem} 2x" alt="${b.nome}" loading="lazy" decoding="async"/>`
             : `<div class="card-img-placeholder"><span>🍔</span><span>FOTO EM BREVE</span></div>`
         }
         ${badgeHTML(b.badge)}
@@ -181,7 +181,7 @@
         // header
         const imgEl = document.getElementById("custImg");
         imgEl.innerHTML = b.imagem
-          ? `<img src="${b.imagem}" alt="${b.nome}" loading="lazy" decoding="async"/>`
+          ? `<img src="${b.imagem}" srcset="${b.imagem.replace(".webp", "-1x.webp")} 1x, ${b.imagem} 2x" alt="${b.nome}" loading="lazy" decoding="async"/>`
           : `🍔`;
         document.getElementById("custName").textContent = b.nome;
         document.getElementById("custDesc").textContent = b.descricao;

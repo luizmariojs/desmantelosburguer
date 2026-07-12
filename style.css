@@ -76,7 +76,7 @@
         min-width: 0;
       }
       .header-name {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         color: var(--yellow);
         font-size: clamp(1.1rem, 5vw, 1.4rem);
         letter-spacing: 2px;
@@ -91,7 +91,7 @@
         font-weight: 600;
       }
       .header-hours {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.72rem;
         color: var(--yellow);
         background: var(--red);
@@ -122,7 +122,7 @@
         background: none;
         border: none;
         color: #aaa;
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.85rem;
         letter-spacing: 2px;
         padding: 10px 16px;
@@ -163,7 +163,7 @@
         background: var(--cream2);
       }
       .section-head-title {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: clamp(1rem, 4vw, 1.3rem);
         color: var(--red);
         letter-spacing: 3px;
@@ -228,7 +228,7 @@
         font-size: 2rem;
       }
       .card-img-placeholder span:last-child {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.6rem;
         letter-spacing: 1px;
         color: var(--black);
@@ -239,7 +239,7 @@
         position: absolute;
         top: 6px;
         left: 0;
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.65rem;
         letter-spacing: 1px;
         padding: 2px 7px 2px 5px;
@@ -283,7 +283,7 @@
         flex: 1;
       }
       .burger-name {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: clamp(1.1rem, 4vw, 1.3rem);
         color: var(--red-dark);
         letter-spacing: 1px;
@@ -308,13 +308,13 @@
       }
       .burger-price-from {
         font-size: 0.6rem;
-        color: #888;
+        color: #6b6b6b;
         font-weight: 600;
         display: block;
         line-height: 1;
       }
       .burger-price {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 1.3rem;
         color: var(--black);
         line-height: 1;
@@ -325,7 +325,7 @@
         border: 2px solid var(--black);
         border-radius: 8px;
         padding: 6px 14px;
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.9rem;
         letter-spacing: 2px;
         cursor: pointer;
@@ -414,7 +414,7 @@
         min-width: 0;
       }
       .cust-name {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 1.4rem;
         letter-spacing: 2px;
         color: var(--red-dark);
@@ -448,7 +448,7 @@
 
       /* tiers no drawer */
       .cust-section-label {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 1rem;
         letter-spacing: 2px;
         color: var(--red-dark);
@@ -524,7 +524,7 @@
         flex: 1;
       }
       .tier-opt-label {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.9rem;
         letter-spacing: 1px;
         color: var(--black);
@@ -535,7 +535,7 @@
         margin-top: 1px;
       }
       .tier-opt-price {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 1.1rem;
         color: var(--black);
         white-space: nowrap;
@@ -633,7 +633,7 @@
         font-weight: 600;
       }
       .cust-total {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 1.5rem;
         color: var(--black);
       }
@@ -645,7 +645,7 @@
         border: 2.5px solid var(--black);
         border-radius: 10px;
         padding: 12px;
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 1.1rem;
         letter-spacing: 3px;
         cursor: pointer;
@@ -679,13 +679,13 @@
         border-bottom: 2px solid var(--yellow);
       }
       .combo-name {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: clamp(1rem, 4vw, 1.3rem);
         color: var(--yellow);
         letter-spacing: 2px;
       }
       .combo-price {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 1.4rem;
         color: var(--yellow);
         background: var(--black);
@@ -711,7 +711,7 @@
       .combo-tag {
         background: var(--cream2);
         color: var(--black);
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.75rem;
         letter-spacing: 1px;
         padding: 2px 8px;
@@ -726,7 +726,7 @@
         color: var(--black);
         border: 2px solid var(--black);
         border-radius: 8px;
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.95rem;
         letter-spacing: 3px;
         cursor: pointer;
@@ -762,7 +762,7 @@
         border-bottom: 2px solid var(--black);
       }
       .batata-nome {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.95rem;
         letter-spacing: 1px;
       }
@@ -786,7 +786,7 @@
         border: 2px solid var(--black);
         border-radius: 6px;
         padding: 4px 9px;
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.85rem;
         cursor: pointer;
         -webkit-tap-highlight-color: transparent;
@@ -810,7 +810,7 @@
         color: var(--yellow);
         border: 2px solid var(--black);
         border-radius: 7px;
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.85rem;
         letter-spacing: 2px;
         cursor: pointer;
@@ -852,7 +852,7 @@
         min-width: 0;
       }
       .bebida-row-nome {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.82rem;
         letter-spacing: 1px;
         color: var(--red-dark);
@@ -871,7 +871,7 @@
         border: 2px solid var(--black);
         border-radius: 7px;
         padding: 5px 10px;
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.8rem;
         letter-spacing: 1px;
         cursor: pointer;
@@ -925,7 +925,7 @@
         transform: scale(0.92);
       }
       .beb-qty-num {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 1.1rem;
         color: var(--black);
         min-width: 20px;
@@ -957,7 +957,7 @@
       .cart-badge {
         background: var(--red);
         color: var(--yellow);
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.75rem;
         border: 1.5px solid var(--yellow);
         border-radius: 50%;
@@ -973,7 +973,7 @@
         overflow: hidden;
       }
       .cart-count {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.75rem;
         color: var(--yellow);
         letter-spacing: 2px;
@@ -986,7 +986,7 @@
         text-overflow: ellipsis;
       }
       .cart-total {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 1.3rem;
         color: var(--yellow);
         white-space: nowrap;
@@ -1003,7 +1003,7 @@
         border: 2px solid var(--black);
         border-radius: 8px;
         padding: 8px 12px;
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.85rem;
         letter-spacing: 2px;
         cursor: pointer;
@@ -1068,7 +1068,7 @@
         flex-shrink: 0;
       }
       .drawer-header h3 {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 1.2rem;
         letter-spacing: 2px;
         color: var(--red-dark);
@@ -1104,7 +1104,7 @@
         flex: 1;
       }
       .order-item-name {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.95rem;
         letter-spacing: 1px;
         color: var(--red-dark);
@@ -1121,7 +1121,7 @@
         margin-top: 2px;
       }
       .order-item-price {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.95rem;
         color: var(--black);
         white-space: nowrap;
@@ -1148,7 +1148,7 @@
       }
       .drawer-name-label {
         display: block;
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.8rem;
         letter-spacing: 1.5px;
         color: var(--red-dark);
@@ -1192,7 +1192,7 @@
         background: var(--white);
         border: 2px solid var(--cream2);
         border-radius: 8px;
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.85rem;
         letter-spacing: 1px;
         color: #777;
@@ -1224,7 +1224,7 @@
         align-items: center;
       }
       .drawer-total {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 1.2rem;
       }
       .btn-fechar-pedir {
@@ -1233,7 +1233,7 @@
         border: 2px solid var(--black);
         border-radius: 8px;
         padding: 9px 14px;
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.95rem;
         letter-spacing: 2px;
         cursor: pointer;
@@ -1250,7 +1250,7 @@
         text-align: center;
       }
       .review-section h3 {
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         color: var(--yellow);
         font-size: clamp(1.1rem, 5vw, 1.6rem);
         letter-spacing: 3px;
@@ -1278,7 +1278,7 @@
         border: 2px solid var(--black);
         border-radius: 10px;
         padding: 9px 18px;
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.95rem;
         letter-spacing: 2px;
         cursor: pointer;
@@ -1333,7 +1333,7 @@
         border: 2px solid var(--yellow);
         padding: 8px 16px;
         border-radius: 30px;
-        font-family: "Bebas Neue", cursive;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 0.9rem;
         letter-spacing: 2px;
         z-index: 200;
