@@ -91,11 +91,7 @@ const CARDAPIO_DATA = {
       preco: 59.99,
       emoji: "💑",
       descricao: "O casal mais famoso do sertão num combo só.",
-      itens: [
-        "2 Burgers Lampião",
-        "1 Porção de Batata G",
-        "1 Refrigerante 1L",
-      ],
+      itens: ["2 Burgers Lampião", "1 Porção de Batata G", "1 Refrigerante 1L"],
     },
     {
       id: "c2",
@@ -150,7 +146,7 @@ const CARDAPIO_DATA = {
   adicionais: [
     { id: "bacon", nome: "Bacon", preco: 4.0 },
     { id: "blend", nome: "Blend de carne 130g", preco: 7.0 },
-    { id: "cheddar", nome: "Queijo cheddar ou ovo", preco: 2.0 },
+    { id: "cheddar", nome: "Queijo cheddar", preco: 2.0 },
     { id: "cebola", nome: "Cebola caramelizada", preco: 3.0 },
     { id: "molched", nome: "Molho de cheddar artesanal", preco: 2.0 },
     { id: "molesp", nome: "Molho especial", preco: 3.0 },
