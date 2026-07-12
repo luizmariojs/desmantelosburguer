@@ -1426,7 +1426,7 @@
     <header>
       <img
         class="logo-img"
-        src="img/logo-desmantelosburguer.png"
+        src="img/logo-desmantelosburguer-header.webp"
         alt="Desmantelo's Burguer"
       />
       <div class="header-text">
@@ -1805,7 +1805,7 @@
         // header
         const imgEl = document.getElementById("custImg");
         imgEl.innerHTML = b.imagem
-          ? `<img src="${b.imagem}" alt="${b.nome}"/>`
+          ? `<img src="${b.imagem}" alt="${b.nome}" loading="lazy" decoding="async"/>`
           : `🍔`;
         document.getElementById("custName").textContent = b.nome;
         document.getElementById("custDesc").textContent = b.descricao;

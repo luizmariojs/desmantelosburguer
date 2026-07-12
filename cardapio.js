@@ -14,7 +14,7 @@ const CARDAPIO_DATA = {
       id: 1,
       nome: "Xodozinho",
       badge: "",
-      imagem: "img/hamburgueres/xodozinho.png",
+      imagem: "img/hamburgueres/xodozinho.webp",
       preco: { burger: 16.99, combo: 22.0, completo: 28.0 },
       descricao:
         "Pão Brioche amanteigado, blend 100g assado na brasa, queijo cheddar e molho especial.",
@@ -23,7 +23,7 @@ const CARDAPIO_DATA = {
       id: 2,
       nome: "Arretado",
       badge: "vendido",
-      imagem: "img/hamburgueres/arretado.png",
+      imagem: "img/hamburgueres/arretado.webp",
       preco: { burger: 18.99, combo: 24.0, completo: 30.0 },
       descricao:
         "Pão Brioche amanteigado, blend 130g assado na brasa, queijo cheddar, molho especial e salada.",
@@ -32,7 +32,7 @@ const CARDAPIO_DATA = {
       id: 3,
       nome: "Lampião",
       badge: "favorito",
-      imagem: "img/hamburgueres/lampiao.png",
+      imagem: "img/hamburgueres/lampiao.webp",
       preco: { burger: 21.99, combo: 27.0, completo: 33.0 },
       descricao:
         "Pão Brioche amanteigado, blend 130g assado na brasa, queijo cheddar, bacon, molho especial e salada.",
@@ -41,7 +41,7 @@ const CARDAPIO_DATA = {
       id: 4,
       nome: "Matuto",
       badge: "",
-      imagem: "img/hamburgueres/matuto.png",
+      imagem: "img/hamburgueres/matuto.webp",
       preco: { burger: 22.99, combo: 28.0, completo: 34.0 },
       descricao:
         "Pão australiano, blend 160g assado na brasa, queijo cheddar (2 fatias), creme de cheddar artesanal e cebola caramelizada.",
@@ -50,7 +50,7 @@ const CARDAPIO_DATA = {
       id: 5,
       nome: "Vixe Maria",
       badge: "novidade",
-      imagem: "img/hamburgueres/vixe-maria.png",
+      imagem: "img/hamburgueres/vixe-maria.webp",
       preco: { burger: 23.99, combo: 29.0, completo: 35.0 },
       descricao:
         "Pão Brioche amanteigado, blend 160g assado na brasa, queijo coalho, doce de leite, bacon e molho especial.",
@@ -59,7 +59,7 @@ const CARDAPIO_DATA = {
       id: 6,
       nome: "Maria Bonita",
       badge: "",
-      imagem: "img/hamburgueres/maria-bonita.png",
+      imagem: "img/hamburgueres/maria-bonita.webp",
       preco: { burger: 25.99, combo: 31.0, completo: 37.0 },
       descricao:
         "Pão Brioche amanteigado, 2 blends 130g assados na brasa, queijo cheddar (2 fatias), molho especial e salada.",
@@ -68,7 +68,7 @@ const CARDAPIO_DATA = {
       id: 7,
       nome: "Rei do Cangaço",
       badge: "",
-      imagem: "img/hamburgueres/rei-cangaco.png",
+      imagem: "img/hamburgueres/rei-cangaco.webp",
       preco: { burger: 28.99, combo: 34.0, completo: 40.0 },
       descricao:
         "Pão Brioche amanteigado, blend de 130g, queijo cheddar, costela desfiada, cream cheese, molho especial e salada.",
@@ -77,7 +77,7 @@ const CARDAPIO_DATA = {
       id: 8,
       nome: "Desmantelado",
       badge: "recheado",
-      imagem: "img/hamburgueres/desmantelado.png",
+      imagem: "img/hamburgueres/desmantelado.webp",
       preco: { burger: 28.99, combo: 34.0, completo: 40.0 },
       descricao:
         "Pão Brioche amanteigado, 2 blends de 130g assados na brasa, queijo cheddar (2 fatias), bacon, molho especial.",
