@@ -579,6 +579,12 @@
         gap: 6px;
         margin-bottom: 14px;
       }
+      .tier-row.invalid {
+        animation: shakeName 0.3s;
+      }
+      .tier-row.invalid .tier-opt {
+        border-color: var(--red);
+      }
       .tier-opt {
         display: flex;
         align-items: center;
@@ -838,6 +844,10 @@
       .btn-pedir-combo:active {
         transform: translate(2px, 2px);
         box-shadow: 1px 1px 0 var(--black);
+      }
+      .btn-pedir-combo:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
       }
 
       /* ── BATATAS ── */
@@ -1653,6 +1663,12 @@
       let custBurgerId = null;
       let custTierIdx = 0;
       let custAdds = new Set();
+      let custPonto = null;
+      const PONTOS = [
+        { id: "mal-passada", label: "Mal passada" },
+        { id: "ao-ponto", label: "Ao ponto" },
+        { id: "bem-passada", label: "Bem passada" },
+      ];
       const batataSel = {};
       const bebidaQtd = {}; // {bid: quantidade} — estado independente do cart
 
@@ -1703,6 +1719,8 @@
         document.getElementById("menu-burgers").appendChild(frag);
       }
 
+      const comboPontoSel = {};
+
       function renderCombos() {
         const frag = document.createDocumentFragment();
         COMBOS.forEach((c) => {
@@ -1716,11 +1734,35 @@
       <div class="combo-body">
         <p class="combo-desc">${c.descricao}</p>
         <div class="combo-itens">${c.itens.map((i) => `<span class="combo-tag">✔ ${i}</span>`).join("")}</div>
-        <button class="btn-pedir-combo" onclick="addCombo('${c.id}')">🔥 ADICIONAR AO PEDIDO</button>
+        <div class="cust-section-label">PONTO DA CARNE</div>
+        <div class="tier-row" id="comboPontoRow-${c.id}">
+          ${PONTOS.map(
+            (p) => `
+            <div class="tier-opt" onclick="selectComboPonto('${c.id}','${p.id}')" id="comboPonto-${c.id}-${p.id}">
+              <div class="tier-radio"><div class="tier-radio-dot"></div></div>
+              <div class="tier-opt-info">
+                <div class="tier-opt-label">${p.label}</div>
+              </div>
+            </div>`,
+          ).join("")}
+        </div>
+        <textarea class="obs-input" id="comboObs-${c.id}" rows="1" placeholder="Observação (opcional)"></textarea>
+        <button class="btn-pedir-combo" id="btnCombo-${c.id}" onclick="addCombo('${c.id}')" disabled>🔥 ADICIONAR AO PEDIDO</button>
       </div>`;
           frag.appendChild(div);
         });
         document.getElementById("menu-combos").appendChild(frag);
+      }
+
+      function selectComboPonto(cid, pid) {
+        comboPontoSel[cid] = pid;
+        document.getElementById(`comboPontoRow-${cid}`)?.classList.remove("invalid");
+        PONTOS.forEach((p) => {
+          document
+            .getElementById(`comboPonto-${cid}-${p.id}`)
+            ?.classList.toggle("selected", p.id === pid);
+        });
+        document.getElementById(`btnCombo-${cid}`).disabled = false;
       }
 
       function renderBatatas() {
@@ -1757,6 +1799,7 @@
         custBurgerId = bid;
         custTierIdx = 0;
         custAdds = new Set();
+        custPonto = null;
         const b = CARDAPIO.find((x) => x.id === bid);
 
         // header
@@ -1802,6 +1845,19 @@
         .join("")}
     </div>
 
+    <div class="cust-section-label">PONTO DA CARNE</div>
+    <div class="tier-row" id="pontoRow">
+      ${PONTOS.map(
+        (p) => `
+        <div class="tier-opt" onclick="selectCustPonto('${p.id}')" id="custPonto-${p.id}">
+          <div class="tier-radio"><div class="tier-radio-dot"></div></div>
+          <div class="tier-opt-info">
+            <div class="tier-opt-label">${p.label}</div>
+          </div>
+        </div>`,
+      ).join("")}
+    </div>
+
     <div class="cust-section-label">ADICIONAIS</div>
     <div class="adds-grid">
       ${ADICIONAIS.map(
@@ -1815,7 +1871,7 @@
     </div>
 
     <div class="cust-section-label">OBSERVAÇÕES</div>
-    <textarea class="obs-input" id="custObs" rows="2" placeholder="Ex: sem cebola, ponto da carne…"></textarea>
+    <textarea class="obs-input" id="custObs" rows="2" placeholder="Ex: sem cebola, sem tomate…"></textarea>
     <div style="height:8px"></div>`;
 
         updateCustTotal();
@@ -1843,6 +1899,16 @@
         updateCustTotal();
       }
 
+      function selectCustPonto(pid) {
+        custPonto = pid;
+        document.getElementById("pontoRow")?.classList.remove("invalid");
+        PONTOS.forEach((p) => {
+          document
+            .getElementById(`custPonto-${p.id}`)
+            ?.classList.toggle("selected", p.id === pid);
+        });
+      }
+
       function toggleAdd(aid) {
         const b = CARDAPIO.find((x) => x.id === custBurgerId);
         if (custAdds.has(aid)) custAdds.delete(aid);
@@ -1868,6 +1934,11 @@
       }
 
       function confirmCust() {
+        if (!custPonto) {
+          document.getElementById("pontoRow")?.classList.add("invalid");
+          showToast("Escolha o ponto da carne! 🥩");
+          return;
+        }
         const b = CARDAPIO.find((x) => x.id === custBurgerId);
         const tierPrecos = [b.preco.burger, b.preco.combo, b.preco.completo];
         const tierNomes = [
@@ -1879,8 +1950,10 @@
         const addsTotal = adds.reduce((s, a) => s + a.preco, 0);
         const obs = document.getElementById("custObs")?.value.trim() || "";
         const tierNome = tierNomes[custTierIdx];
+        const pontoLabel = PONTOS.find((p) => p.id === custPonto).label;
         const detalheParts = [
           tierNome !== "Só o burger" ? tierNome : null,
+          `Ponto: ${pontoLabel}`,
           adds.length
             ? `Adicionais: ${adds.map((a) => a.nome).join(", ")}`
             : null,
@@ -1927,12 +2000,16 @@
       }
       function addCombo(cid) {
         const c = COMBOS.find((x) => x.id === cid);
+        const pontoId = comboPontoSel[cid];
+        if (!pontoId) return; // botão fica disabled até escolher, guarda extra
+        const pontoLabel = PONTOS.find((p) => p.id === pontoId).label;
+        const obs = document.getElementById(`comboObs-${cid}`)?.value.trim() || "";
         cart.push({
           id: Date.now(),
           nome: c.nome,
           preco: c.preco,
-          detalhe: c.itens.join(" + "),
-          obs: "",
+          detalhe: `${c.itens.join(" + ")} · Ponto: ${pontoLabel}`,
+          obs,
           adds: [],
         });
         updateCartUI();

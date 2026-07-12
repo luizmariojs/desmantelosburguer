@@ -461,6 +461,7 @@
     }
     .btn-pdv-confirmar:hover{background:var(--red-dark);}
     .btn-pdv-confirmar:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(0,0,0,.4);}
+    .btn-pdv-confirmar:disabled{opacity:.4;cursor:not-allowed;}
     @media(max-width:600px){
       body{overflow:auto;}
       .layout{flex-direction:column;overflow:visible;}
@@ -556,7 +557,7 @@
       <span class="pdv-total-label">TOTAL DO ITEM</span>
       <span class="pdv-total-val" id="pdvTotalItem">R$ 0,00</span>
     </div>
-    <button class="btn-pdv-confirmar" onclick="confirmarBurger()">🔥 ADICIONAR</button>
+    <button class="btn-pdv-confirmar" id="btnPdvConfirmar" onclick="confirmarDrawerAtivo()" disabled>🔥 ADICIONAR</button>
   </div>
 </div>
 
@@ -624,7 +625,7 @@ const CATEGORIAS=[
       _burger:b
     }))
   },
-  {id:"combos",   label:"🔥 COMBOS",   itens:()=>COMBOS.map(c=>({id:c.id,nome:c.nome,preco:c.preco,detalhe:c.detalhe}))},
+  {id:"combos",   label:"🔥 COMBOS",   itens:()=>COMBOS.map(c=>({id:c.id,nome:c.nome,preco:c.preco,detalhe:c.detalhe,_combo:c}))},
   {id:"batatas",  label:"🍟 BATATAS",  itens:()=>BATATAS.map(b=>({id:b.id,nome:b.nome,preco:b.preco,detalhe:b.detalhe}))},
   {id:"bebidas",  label:"🥤 BEBIDAS",  itens:()=>BEBIDAS.map(b=>({id:b.id,nome:b.nome,preco:b.preco,detalhe:""}))},
   {id:"adicionais",label:"➕ ADICIONAIS",itens:()=>ADICIONAIS.map(a=>({id:`add-${a.id}`,nome:a.nome,preco:a.preco,detalhe:"Adicional avulso"}))},
@@ -637,10 +638,20 @@ let pedido=[];
 let catAtiva="burgers";
 let formaPagamento=null;
 
-// estado do drawer de burger
+const PONTOS=[
+  {id:"mal-passada", label:"Mal passada"},
+  {id:"ao-ponto",    label:"Ao ponto"},
+  {id:"bem-passada", label:"Bem passada"},
+];
+
+// estado do drawer (compartilhado entre burger e combo)
+let drawerMode="burger"; // "burger" | "combo"
 let drawerBurgerId=null;
 let drawerTierIdx=0;
 let drawerAdds=new Set();
+let drawerPonto=null;
+let drawerComboId=null;
+let drawerComboPonto=null;
 
 /* ═══════════════════════════════════════════
    🖼️  RENDER
@@ -699,14 +710,16 @@ function renderProdutos(filtro=""){
 function criarItemEl(item){
   const div=document.createElement("div");
   div.className="produto-item";
-  // burgers abrem drawer; demais adicionam direto
+  // burgers e combos abrem drawer (precisam de ponto da carne); demais adicionam direto
   const onclick=item._burger
     ?`abrirDrawerBurger(${item._burger.id})`
-    :`adicionarItem(${JSON.stringify(item)})`;
+    :item._combo
+      ?`abrirDrawerCombo('${item._combo.id}')`
+      :`adicionarItem(${JSON.stringify(item)})`;
   div.innerHTML=`
     <div class="produto-info">
       <div class="produto-nome">${item.nome}</div>
-      ${item.detalhe&&!item._burger?`<div class="produto-detalhe">${item.detalhe}</div>`:""}
+      ${item.detalhe&&!item._burger&&!item._combo?`<div class="produto-detalhe">${item.detalhe}</div>`:""}
     </div>
     <div class="produto-preco">${fmt(item.preco)}</div>
     <button class="btn-add-item" onclick="${onclick}">+</button>`;
@@ -719,9 +732,11 @@ function filtrar(v){renderProdutos(v);}
    🍔  DRAWER DE BURGER
    ═══════════════════════════════════════════ */
 function abrirDrawerBurger(bid){
+  drawerMode="burger";
   drawerBurgerId=bid;
   drawerTierIdx=0;
   drawerAdds=new Set();
+  drawerPonto=null;
   const b=CARDAPIO.find(x=>x.id===bid);
   document.getElementById("pdvDrawerNome").textContent=b.nome;
 
@@ -742,6 +757,14 @@ function abrirDrawerBurger(bid){
           <span class="pdv-tier-preco">R$&nbsp;${fmtN(t.preco)}</span>
         </div>`).join("")}
     </div>
+    <div class="pdv-section-label">PONTO DA CARNE</div>
+    <div class="pdv-tier-row" id="pdvPontoRow">
+      ${PONTOS.map(p=>`
+        <div class="pdv-tier-opt" id="pdvPonto-${p.id}" onclick="selecionarPonto('${p.id}')">
+          <div class="pdv-tier-radio"></div>
+          <span class="pdv-tier-label">${p.label}</span>
+        </div>`).join("")}
+    </div>
     <div class="pdv-section-label">ADICIONAIS</div>
     <div class="pdv-adds-grid">
       ${ADICIONAIS.map(a=>`
@@ -753,13 +776,22 @@ function abrirDrawerBurger(bid){
     </div>
     <div class="pdv-section-label">OBSERVAÇÃO</div>
     <textarea class="pdv-obs-input" id="pdvObs" rows="2"
-      placeholder="Ex: sem cebola, bem passado…"></textarea>
+      placeholder="Ex: sem cebola…"></textarea>
     <div style="height:8px"></div>`;
 
   atualizarTotalDrawer();
+  document.getElementById("btnPdvConfirmar").disabled=true;
   document.getElementById("pdvDrawer").classList.add("open");
   document.getElementById("pdvOverlay").classList.add("open");
   document.body.style.overflow="hidden";
+}
+
+function selecionarPonto(pid){
+  drawerPonto=pid;
+  PONTOS.forEach(p=>{
+    document.getElementById(`pdvPonto-${p.id}`)?.classList.toggle("selected",p.id===pid);
+  });
+  document.getElementById("btnPdvConfirmar").disabled=false;
 }
 
 function fecharDrawerBurger(){
@@ -801,7 +833,8 @@ function confirmarBurger(){
   const adds=ADICIONAIS.filter(a=>drawerAdds.has(a.id));
   const addsTotal=adds.reduce((s,a)=>s+a.preco,0);
   const obs=document.getElementById("pdvObs")?.value.trim()||"";
-  const tier=tierLabels[drawerTierIdx];
+  const pontoLabel=PONTOS.find(p=>p.id===drawerPonto).label;
+  const tier=`${tierLabels[drawerTierIdx]} · Ponto: ${pontoLabel}`;
   const preco=tierPrecos[drawerTierIdx]+addsTotal;
 
   pedido.push({
@@ -820,6 +853,74 @@ function confirmarBurger(){
   fecharDrawerBurger();
   renderPedido();
   showToast(`${b.nome} adicionado ✓`);
+}
+
+function confirmarDrawerAtivo(){
+  drawerMode==="combo" ? confirmarCombo() : confirmarBurger();
+}
+
+/* ═══════════════════════════════════════════
+   🔥  DRAWER DE COMBO (reaproveita o drawer do burger)
+   ═══════════════════════════════════════════ */
+function abrirDrawerCombo(cid){
+  drawerMode="combo";
+  drawerComboId=cid;
+  drawerComboPonto=null;
+  const c=COMBOS.find(x=>x.id===cid);
+  document.getElementById("pdvDrawerNome").textContent=c.nome;
+
+  document.getElementById("pdvDrawerBody").innerHTML=`
+    <div class="pdv-section-label">COMPOSIÇÃO</div>
+    <div style="font-size:.8rem;color:var(--text2);margin-bottom:10px;">${c.detalhe}</div>
+    <div class="pdv-section-label">PONTO DA CARNE</div>
+    <div class="pdv-tier-row" id="pdvComboPontoRow">
+      ${PONTOS.map(p=>`
+        <div class="pdv-tier-opt" id="pdvComboPonto-${p.id}" onclick="selecionarPontoCombo('${p.id}')">
+          <div class="pdv-tier-radio"></div>
+          <span class="pdv-tier-label">${p.label}</span>
+        </div>`).join("")}
+    </div>
+    <div class="pdv-section-label">OBSERVAÇÃO</div>
+    <textarea class="pdv-obs-input" id="pdvComboObs" rows="2"
+      placeholder="Ex: dividir o ponto entre as unidades…"></textarea>
+    <div style="height:8px"></div>`;
+
+  document.getElementById("pdvTotalItem").textContent=fmt(c.preco);
+  document.getElementById("btnPdvConfirmar").disabled=true;
+  document.getElementById("pdvDrawer").classList.add("open");
+  document.getElementById("pdvOverlay").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+
+function selecionarPontoCombo(pid){
+  drawerComboPonto=pid;
+  PONTOS.forEach(p=>{
+    document.getElementById(`pdvComboPonto-${p.id}`)?.classList.toggle("selected",p.id===pid);
+  });
+  document.getElementById("btnPdvConfirmar").disabled=false;
+}
+
+function confirmarCombo(){
+  const c=COMBOS.find(x=>x.id===drawerComboId);
+  const pontoLabel=PONTOS.find(p=>p.id===drawerComboPonto).label;
+  const obs=document.getElementById("pdvComboObs")?.value.trim()||"";
+
+  pedido.push({
+    uid:Date.now()+Math.random(),
+    id:c.id,
+    nome:c.nome,
+    detalhe:c.detalhe,
+    ponto:pontoLabel,
+    obs,
+    preco:c.preco,
+    preco_total:c.preco,
+    qty:1,
+    _tipo:"combo"
+  });
+
+  fecharDrawerBurger();
+  renderPedido();
+  showToast(`${c.nome} adicionado ✓`);
 }
 
 /* ═══════════════════════════════════════════
@@ -915,10 +1016,12 @@ function renderPedido(){
   pedido.forEach(item=>{
     const div=document.createElement("div");
     div.className="pedido-item";
-    // linha de detalhe: tier para burgers, detalhe para outros
+    // linha de detalhe: tier para burgers, composição+ponto para combos, detalhe simples para o resto
     const detalheHtml=item._tipo==="burger"
       ?`<div class="pedido-item-detalhe">${item.tier}${item.adds?.length?" · +"+item.adds.map(a=>a.nome).join(", "):""}${item.obs?" · "+item.obs:""}</div>`
-      :item.detalhe?`<div class="pedido-item-detalhe">${item.detalhe}</div>`:"";
+      :item._tipo==="combo"
+        ?`<div class="pedido-item-detalhe">${item.detalhe} · Ponto: ${item.ponto}${item.obs?" · "+item.obs:""}</div>`
+        :item.detalhe?`<div class="pedido-item-detalhe">${item.detalhe}</div>`:"";
     div.innerHTML=`
       <div class="pedido-item-info">
         <div class="pedido-item-nome">${item.nome}${item.qty>1?` ×${item.qty}`:""}</div>
@@ -981,9 +1084,15 @@ function gerarCupom(){
       if(i.adds?.length) c+=`  + ${i.adds.map(a=>a.nome).join(", ")}\n`;
       // observação
       if(i.obs) c+=`  Obs: ${i.obs}\n`;
+    } else if(i._tipo==="combo"){
+      // combo tem burger na composição — cozinha precisa saber o quê preparar e o ponto
+      c+=`${qtd}${i.nome}  R$ ${fmtN(i.preco_total)}\n`;
+      c+=`  ${i.detalhe}\n`;
+      c+=`  Ponto: ${i.ponto}\n`;
+      if(i.obs) c+=`  Obs: ${i.obs}\n`;
     } else {
       c+=`${qtd}${i.nome}  R$ ${fmtN(i.preco_total)}\n`;
-      // remove detalhe do cupom para não-burgers (desnecessário na cozinha)
+      // remove detalhe do cupom para não-burgers/combos (desnecessário na cozinha)
     }
   });
 
