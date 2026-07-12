@@ -57,7 +57,7 @@
 
       function renderBurgers() {
         const frag = document.createDocumentFragment();
-        CARDAPIO.forEach((b) => {
+        CARDAPIO.forEach((b, i) => {
           const art = document.createElement("article");
           art.className = "burger-card";
           art.setAttribute("role", "button");
@@ -66,11 +66,20 @@
           art.onkeydown = (e) => {
             if (e.key === "Enter" || e.key === " ") openCust(b.id);
           };
+          // primeiros cards ficam acima da dobra — carregam eager (o 1º com prioridade alta),
+          // o resto continua lazy. Atrelado à posição no loop, não a qual burger é, então
+          // acompanha automaticamente se o cardápio for reordenado ou crescer.
+          const imgLoadAttrs =
+            i === 0
+              ? `fetchpriority="high"`
+              : i === 1
+                ? ""
+                : `loading="lazy"`;
           art.innerHTML = `
       <div class="card-img">
         ${
           b.imagem
-            ? `<img src="${b.imagem}" srcset="${b.imagem.replace(".webp", "-1x.webp")} 1x, ${b.imagem} 2x" alt="${b.nome}" loading="lazy" decoding="async"/>`
+            ? `<img src="${b.imagem}" srcset="${b.imagem.replace(".webp", "-1x.webp")} 1x, ${b.imagem} 2x" alt="${b.nome}" ${imgLoadAttrs} decoding="async"/>`
             : `<div class="card-img-placeholder"><span>🍔</span><span>FOTO EM BREVE</span></div>`
         }
         ${badgeHTML(b.badge)}
