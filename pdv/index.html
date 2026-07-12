@@ -786,6 +786,7 @@ function abrirDrawerBurger(bid){
 
   atualizarTotalDrawer();
   document.getElementById("btnPdvConfirmar").disabled=true;
+  document.getElementById("pdvDrawerBody").scrollTop=0;
   document.getElementById("pdvDrawer").classList.add("open");
   document.getElementById("pdvOverlay").classList.add("open");
   document.body.style.overflow="hidden";
@@ -892,6 +893,7 @@ function abrirDrawerCombo(cid){
 
   document.getElementById("pdvTotalItem").textContent=fmt(c.preco);
   document.getElementById("btnPdvConfirmar").disabled=true;
+  document.getElementById("pdvDrawerBody").scrollTop=0;
   document.getElementById("pdvDrawer").classList.add("open");
   document.getElementById("pdvOverlay").classList.add("open");
   document.body.style.overflow="hidden";
