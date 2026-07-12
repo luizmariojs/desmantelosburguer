@@ -2325,6 +2325,9 @@
         let msg = "🔥 *PEDIDO — DESMANTELO'S BURGUER* 🔥\n\n";
         msg += `👤 *Cliente:* ${nomeCliente}\n`;
         msg += `🛵 *${ENTREGA_LABELS[entregaTipo]}*\n`;
+        if (entregaTipo === "delivery") {
+          msg += `📍 _Consulte o valor da entrega com a gente aqui no WhatsApp — varia por localidade._\n`;
+        }
         msg += `💳 *Pagamento:* ${PAGAMENTO_LABELS[formaPagamento]}\n\n`;
         cart.forEach((i, n) => {
           const nomeDisplay =
