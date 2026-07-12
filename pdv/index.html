@@ -332,8 +332,8 @@
     }
 
     /* ── FORMA DE PAGAMENTO ── */
-    .pagamento-row{display:flex;gap:6px;margin-bottom:10px;}
-    .btn-pagamento{
+    .pill-row{display:flex;gap:6px;margin-bottom:10px;}
+    .btn-pill{
       flex:1;padding:8px 4px;background:var(--surface2);
       border:1.5px solid var(--border2);border-radius:var(--radius);
       font-family:'Bebas Neue',cursive;font-size:.72rem;
@@ -341,7 +341,7 @@
       transition:border-color .12s,color .12s,background .12s;
       -webkit-tap-highlight-color:transparent;
     }
-    .btn-pagamento.selected{
+    .btn-pill.selected{
       border-color:var(--yellow);color:var(--yellow);background:#2a2010;
     }
 
@@ -529,10 +529,14 @@
         <span class="pedido-total-label">TOTAL</span>
         <span class="pedido-total-valor" id="pedidoTotal">R$ 0,00</span>
       </div>
-      <div class="pagamento-row" id="pagamentoRow">
-        <button class="btn-pagamento" data-forma="dinheiro" onclick="selecionarPagamento('dinheiro')">💵 DINHEIRO</button>
-        <button class="btn-pagamento" data-forma="pix" onclick="selecionarPagamento('pix')">📱 PIX</button>
-        <button class="btn-pagamento" data-forma="cartao" onclick="selecionarPagamento('cartao')">💳 CARTÃO</button>
+      <div class="pill-row" id="entregaRow">
+        <button class="btn-pill" data-valor="delivery" onclick="selecionarEntrega('delivery')">🛵 DELIVERY</button>
+        <button class="btn-pill" data-valor="retirada" onclick="selecionarEntrega('retirada')">🏠 RETIRADA</button>
+      </div>
+      <div class="pill-row" id="pagamentoRow">
+        <button class="btn-pill" data-forma="dinheiro" onclick="selecionarPagamento('dinheiro')">💵 DINHEIRO</button>
+        <button class="btn-pill" data-forma="pix" onclick="selecionarPagamento('pix')">📱 PIX</button>
+        <button class="btn-pill" data-forma="cartao" onclick="selecionarPagamento('cartao')">💳 CARTÃO</button>
       </div>
       <button class="btn-imprimir-footer" id="btnImprimirFooter"
         onclick="imprimirCupom()" disabled>
@@ -637,6 +641,7 @@ const CATEGORIAS=[
 let pedido=[];
 let catAtiva="burgers";
 let formaPagamento=null;
+let entregaTipo=null;
 
 const PONTOS=[
   {id:"mal-passada", label:"Mal passada"},
@@ -966,9 +971,21 @@ function removerItem(uid){
 function novoPedido(){
   pedido=[];
   formaPagamento=null;
+  entregaTipo=null;
   document.getElementById("clienteInput").value="";
-  document.querySelectorAll(".btn-pagamento").forEach(b=>b.classList.remove("selected"));
+  document.querySelectorAll(".btn-pill").forEach(b=>b.classList.remove("selected"));
   renderPedido();
+}
+
+/* ═══════════════════════════════════════════
+   🛵  ENTREGA
+   ═══════════════════════════════════════════ */
+function selecionarEntrega(valor){
+  entregaTipo=valor;
+  document.querySelectorAll("#entregaRow .btn-pill").forEach(b=>{
+    b.classList.toggle("selected",b.dataset.valor===valor);
+  });
+  atualizarBotoesImprimir();
 }
 
 /* ═══════════════════════════════════════════
@@ -976,14 +993,14 @@ function novoPedido(){
    ═══════════════════════════════════════════ */
 function selecionarPagamento(forma){
   formaPagamento=forma;
-  document.querySelectorAll(".btn-pagamento").forEach(b=>{
+  document.querySelectorAll("#pagamentoRow .btn-pill").forEach(b=>{
     b.classList.toggle("selected",b.dataset.forma===forma);
   });
   atualizarBotoesImprimir();
 }
 
 function atualizarBotoesImprimir(){
-  const habilitado=pedido.length>0&&!!formaPagamento;
+  const habilitado=pedido.length>0&&!!formaPagamento&&!!entregaTipo;
   document.getElementById("btnImprimirTop").disabled=!habilitado;
   document.getElementById("btnImprimirFooter").disabled=!habilitado;
 }
@@ -1073,6 +1090,8 @@ function gerarCupom(){
   c+="---\n";
   c+=`${dia}  ${hora}\n`;
   if(cliente) c+=`Cliente: ${cliente}\n`;
+  const entregaLabel={delivery:"Delivery",retirada:"Retirada"}[entregaTipo]||"";
+  if(entregaLabel) c+=`Entrega: ${entregaLabel}\n`;
   c+="---\n";
 
   pedido.forEach((i,n)=>{
