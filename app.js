@@ -7,6 +7,7 @@
       // e com o script de sync com o Google) — ver PRD-cardapio-google-sync.md
       const ADICIONAIS = CARDAPIO_DATA.adicionais;
       const CARDAPIO = CARDAPIO_DATA.burgers;
+      const SANDUICHES = CARDAPIO_DATA.sanduiches;
       const COMBOS = CARDAPIO_DATA.combos;
       const BATATAS = CARDAPIO_DATA.batatas;
       const BEBIDAS = CARDAPIO_DATA.bebidas;
@@ -36,7 +37,8 @@
       let formaPagamento = null;
       const ENTREGA_LABELS = { delivery: "Delivery", retirada: "Retirada" };
       const PAGAMENTO_LABELS = { dinheiro: "Dinheiro", pix: "Pix", cartao: "Cartão" };
-      let custBurgerId = null;
+      let custOrigem = "burgers";
+      let custItemId = null;
       let custTierIdx = 0;
       let custAdds = new Set();
       let custPonto = null;
@@ -55,22 +57,33 @@
         return v.toFixed(2).replace(".", ",");
       }
 
-      function renderBurgers() {
+      // origem → array: mesmo padrão usado no resto do arquivo pra achar de onde um item veio
+      // (CARDAPIO = "burgers", SANDUICHES = "sanduiches") — usado pelo drawer de personalização
+      // pra funcionar com qualquer um dos dois, não só hambúrguer.
+      function itemArray(origem) {
+        return origem === "sanduiches" ? SANDUICHES : CARDAPIO;
+      }
+      function findItem(origem, id) {
+        return itemArray(origem).find((x) => x.id == id);
+      }
+
+      // Card tiered (3 preços) compartilhado entre Hambúrgueres e Sanduíches — a única
+      // diferença de comportamento por seção é o carregamento eager/lazy da imagem
+      // (só a seção acima da dobra, "burgers", tem o 1º/2º card priorizados).
+      function renderItemsTiered(arr, origem, containerId, eagerLoad) {
         const frag = document.createDocumentFragment();
-        CARDAPIO.forEach((b, i) => {
+        arr.forEach((b, i) => {
           const art = document.createElement("article");
           art.className = "burger-card";
           art.setAttribute("role", "button");
           art.setAttribute("tabindex", "0");
-          art.onclick = () => openCust(b.id);
+          art.onclick = () => openCust(origem, b.id);
           art.onkeydown = (e) => {
-            if (e.key === "Enter" || e.key === " ") openCust(b.id);
+            if (e.key === "Enter" || e.key === " ") openCust(origem, b.id);
           };
-          // primeiros cards ficam acima da dobra — carregam eager (o 1º com prioridade alta),
-          // o resto continua lazy. Atrelado à posição no loop, não a qual burger é, então
-          // acompanha automaticamente se o cardápio for reordenado ou crescer.
-          const imgLoadAttrs =
-            i === 0
+          const imgLoadAttrs = !eagerLoad
+            ? `loading="lazy"`
+            : i === 0
               ? `fetchpriority="high"`
               : i === 1
                 ? ""
@@ -94,14 +107,21 @@
             <span class="burger-price-from">a partir de</span>
             <span class="burger-price">R$&nbsp;${fmt(b.preco.burger)}</span>
           </div>
-          <button class="btn-add-card" onclick="event.stopPropagation();openCust(${b.id})">
+          <button class="btn-add-card" onclick="event.stopPropagation();openCust('${origem}','${b.id}')">
             + PEDIR
           </button>
         </div>
       </div>`;
           frag.appendChild(art);
         });
-        document.getElementById("menu-burgers").appendChild(frag);
+        document.getElementById(containerId).appendChild(frag);
+      }
+
+      function renderBurgers() {
+        renderItemsTiered(CARDAPIO, "burgers", "menu-burgers", true);
+      }
+      function renderSanduiches() {
+        renderItemsTiered(SANDUICHES, "sanduiches", "menu-sanduiches", false);
       }
 
       const comboPontoSel = {};
@@ -154,12 +174,21 @@
         const frag = document.createDocumentFragment();
         BATATAS.forEach((b) => {
           batataSel[b.id] = b.tamanhos[0];
-          const div = document.createElement("div");
-          div.className = "batata-card";
-          div.innerHTML = `
-      <div class="batata-header"><div class="batata-nome">${b.emoji} ${b.nome}</div></div>
-      <div class="batata-body">
-        <p class="batata-desc">${b.desc}</p>
+          const art = document.createElement("article");
+          art.className = "burger-card petisco-card";
+          art.innerHTML = `
+      <div class="card-img">
+        ${
+          b.imagem
+            ? `<img src="${b.imagem}" srcset="${b.imagem.replace(".webp", "-1x.webp")} 1x, ${b.imagem} 2x" alt="${b.nome}" loading="lazy" decoding="async"/>`
+            : `<div class="card-img-placeholder"><span>${b.emoji}</span><span>FOTO EM BREVE</span></div>`
+        }
+      </div>
+      <div class="card-info">
+        <div class="card-info-top">
+          <div class="burger-name">${b.emoji} ${b.nome}</div>
+          <div class="burger-desc">${b.desc}</div>
+        </div>
         <div class="batata-tamanhos" id="tam-${b.id}">
           ${b.tamanhos
             .map(
@@ -172,7 +201,7 @@
         </div>
         <button class="btn-pedir-bat" onclick="addBatata('${b.id}')">+ ADICIONAR</button>
       </div>`;
-          frag.appendChild(div);
+          frag.appendChild(art);
         });
         document.getElementById("menu-batatas").appendChild(frag);
       }
@@ -180,12 +209,27 @@
       /* ═══════════════════════════════════════
    🎛️  DRAWER CUSTOMIZAÇÃO
    ═══════════════════════════════════════ */
-      function openCust(bid) {
-        custBurgerId = bid;
+      // Rótulos do tier são gerados a partir de `substantivo` (default "burger") — assim
+      // o mesmo drawer serve pra hambúrguer ("SÓ O BURGER") e pra baguete ("SÓ O BAGUETE")
+      // sem precisar de HTML/lógica duplicada por tipo de produto.
+      function tierDefs(b) {
+        const subst = b.substantivo || "burger";
+        const Subst = subst.charAt(0).toUpperCase() + subst.slice(1);
+        return [
+          { label: `SÓ O ${subst.toUpperCase()}`, desc: `Só o ${subst}`, preco: b.preco.burger },
+          { label: `${subst.toUpperCase()} + REFRI`, desc: `${Subst} + Refrigerante lata`, preco: b.preco.combo },
+          { label: "COMBO COMPLETO", desc: `${Subst} + Refri lata + Batata Frita P`, preco: b.preco.completo },
+        ];
+      }
+
+      function openCust(origem, id) {
+        custOrigem = origem;
+        custItemId = id;
         custTierIdx = 0;
         custAdds = new Set();
         custPonto = null;
-        const b = CARDAPIO.find((x) => x.id === bid);
+        const b = findItem(origem, id);
+        const temPonto = b.temPontoCarne !== false;
 
         // header
         const imgEl = document.getElementById("custImg");
@@ -199,23 +243,7 @@
         document.getElementById("custBody").innerHTML = `
     <div class="cust-section-label">ESCOLHA O COMBO</div>
     <div class="tier-row" id="tierRow">
-      ${[
-        {
-          label: "SÓ O BURGER",
-          desc: "Só o hambúrguer",
-          preco: b.preco.burger,
-        },
-        {
-          label: "BURGER + REFRI",
-          desc: "Hambúrguer + Refrigerante lata",
-          preco: b.preco.combo,
-        },
-        {
-          label: "COMBO COMPLETO",
-          desc: "Hambúrguer + Refri lata + Batata Frita P",
-          preco: b.preco.completo,
-        },
-      ]
+      ${tierDefs(b)
         .map(
           (t, i) => `
         <div class="tier-opt${i === 0 ? " selected" : ""}" onclick="selectCustTier(${i})" id="custTier-${i}">
@@ -230,6 +258,9 @@
         .join("")}
     </div>
 
+    ${
+      temPonto
+        ? `
     <div class="cust-section-label">PONTO DA CARNE</div>
     <div class="tier-row" id="pontoRow">
       ${PONTOS.map(
@@ -241,14 +272,16 @@
           </div>
         </div>`,
       ).join("")}
-    </div>
+    </div>`
+        : ""
+    }
 
     <div class="cust-section-label">ADICIONAIS</div>
     <div class="adds-grid">
       ${ADICIONAIS.map(
         (a) => `
-        <div class="add-opt" onclick="toggleAdd('${a.id}')" id="addopt-${bid}-${a.id}">
-          <div class="add-check" id="addcheck-${bid}-${a.id}"></div>
+        <div class="add-opt" onclick="toggleAdd('${a.id}')" id="addopt-${origem}-${id}-${a.id}">
+          <div class="add-check" id="addcheck-${origem}-${id}-${a.id}"></div>
           <span class="add-nome">${a.nome}</span>
           <span class="add-price">+R$&nbsp;${fmt(a.preco)}</span>
         </div>`,
@@ -296,11 +329,10 @@
       }
 
       function toggleAdd(aid) {
-        const b = CARDAPIO.find((x) => x.id === custBurgerId);
         if (custAdds.has(aid)) custAdds.delete(aid);
         else custAdds.add(aid);
-        const opt = document.getElementById(`addopt-${custBurgerId}-${aid}`);
-        const chk = document.getElementById(`addcheck-${custBurgerId}-${aid}`);
+        const opt = document.getElementById(`addopt-${custOrigem}-${custItemId}-${aid}`);
+        const chk = document.getElementById(`addcheck-${custOrigem}-${custItemId}-${aid}`);
         const sel = custAdds.has(aid);
         opt?.classList.toggle("selected", sel);
         if (chk) chk.textContent = sel ? "✓" : "";
@@ -308,7 +340,7 @@
       }
 
       function updateCustTotal() {
-        const b = CARDAPIO.find((x) => x.id === custBurgerId);
+        const b = findItem(custOrigem, custItemId);
         if (!b) return;
         const tierPrecos = [b.preco.burger, b.preco.combo, b.preco.completo];
         const addsTotal = [...custAdds].reduce((s, aid) => {
@@ -320,26 +352,27 @@
       }
 
       function confirmCust() {
-        if (!custPonto) {
+        const b = findItem(custOrigem, custItemId);
+        const temPonto = b.temPontoCarne !== false;
+        if (temPonto && !custPonto) {
           document.getElementById("pontoRow")?.classList.add("invalid");
           showToast("Escolha o ponto da carne! 🥩");
           return;
         }
-        const b = CARDAPIO.find((x) => x.id === custBurgerId);
         const tierPrecos = [b.preco.burger, b.preco.combo, b.preco.completo];
-        const tierNomes = [
-          "Só o burger",
-          "Burger + Refri lata",
-          "Burger + Refri lata + Batata P",
-        ];
+        const tierNomes = tierDefs(b).map((t) =>
+          t.desc.charAt(0).toUpperCase() + t.desc.slice(1),
+        );
         const adds = ADICIONAIS.filter((a) => custAdds.has(a.id));
         const addsTotal = adds.reduce((s, a) => s + a.preco, 0);
         const obs = document.getElementById("custObs")?.value.trim() || "";
         const tierNome = tierNomes[custTierIdx];
-        const pontoLabel = PONTOS.find((p) => p.id === custPonto).label;
+        const pontoLabel = temPonto
+          ? PONTOS.find((p) => p.id === custPonto).label
+          : null;
         const detalheParts = [
-          tierNome !== "Só o burger" ? tierNome : null,
-          `Ponto: ${pontoLabel}`,
+          tierNome !== tierNomes[0] ? tierNome : null,
+          pontoLabel ? `Ponto: ${pontoLabel}` : null,
           adds.length
             ? `Adicionais: ${adds.map((a) => a.nome).join(", ")}`
             : null,
@@ -351,6 +384,7 @@
           detalhe: detalheParts.join(" · "),
           obs,
           adds,
+          qtd: 1,
         });
         closeCust();
         updateCartUI();
@@ -380,6 +414,7 @@
           detalhe: "",
           obs: "",
           adds: [],
+          qtd: 1,
         });
         updateCartUI();
         showToast(`${b.nome} ${tam.label} adicionada! 🍟`);
@@ -397,6 +432,7 @@
           detalhe: `${c.itens.join(" + ")} · Ponto: ${pontoLabel}`,
           obs,
           adds: [],
+          qtd: 1,
         });
         updateCartUI();
         showToast(`${c.nome} adicionado! 🔥`);
@@ -494,11 +530,33 @@
         if (!cart.length) closeDrawer();
       }
 
+      // Stepper genérico do drawer de revisão — bebida tem seu próprio mecanismo
+      // (bebidaQtd, na lista de bebidas) e não passa por aqui.
+      function incrementQtd(itemId) {
+        const item = cart.find((i) => i.id == itemId);
+        if (!item || item.bebidaId) return;
+        item.qtd = (item.qtd || 1) + 1;
+        updateCartUI();
+        renderDrawer();
+      }
+      function decrementQtd(itemId) {
+        const item = cart.find((i) => i.id == itemId);
+        if (!item || item.bebidaId) return;
+        const nova = (item.qtd || 1) - 1;
+        if (nova <= 0) {
+          removeItem(itemId);
+          return;
+        }
+        item.qtd = nova;
+        updateCartUI();
+        renderDrawer();
+      }
+
       /* ═══════════════════════════════════════
    🔄  CART UI
    ═══════════════════════════════════════ */
       function calcTotal() {
-        return cart.reduce((s, i) => s + i.preco, 0);
+        return cart.reduce((s, i) => s + i.preco * (i.qtd || 1), 0);
       }
       function updateCartUI() {
         const fl = document.getElementById("cartFloat");
@@ -507,11 +565,12 @@
           return;
         }
         fl.classList.add("visible");
-        document.getElementById("cartBadge").textContent = cart.length;
+        const totalUnidades = cart.reduce((s, i) => s + (i.qtd || 1), 0);
+        document.getElementById("cartBadge").textContent = totalUnidades;
         document.getElementById("cartCount").textContent =
-          `${cart.length} ${cart.length === 1 ? "ITEM" : "ITENS"}`;
+          `${totalUnidades} ${totalUnidades === 1 ? "ITEM" : "ITENS"}`;
         document.getElementById("cartItemsList").textContent = cart
-          .map((i) => i.nome)
+          .map((i) => (i.qtd > 1 ? `${i.nome} ×${i.qtd}` : i.nome))
           .join(" · ");
         document.getElementById("cartTotal").textContent =
           `R$ ${fmt(calcTotal())}`;
@@ -547,7 +606,18 @@
         ${i.detalhe ? `<div class="order-item-adds">➕ ${i.detalhe}</div>` : ""}
         ${i.obs ? `<div class="order-item-obs">📝 ${i.obs}</div>` : ""}
       </div>
-      <div class="order-item-price">R$&nbsp;${fmt(i.preco)}</div>
+      <div class="order-item-right">
+        ${
+          i.bebidaId
+            ? ""
+            : `<div class="beb-qty-ctrl">
+          <button class="btn-beb-dec" onclick="decrementQtd(${i.id})">−</button>
+          <span class="beb-qty-num">${i.qtd || 1}</span>
+          <button class="btn-beb-inc" onclick="incrementQtd(${i.id})">+</button>
+        </div>`
+        }
+        <div class="order-item-price">R$&nbsp;${fmt(i.preco * (i.qtd || 1))}</div>
+      </div>
     </div>`,
           )
           .join("");
@@ -628,11 +698,14 @@
         }
         msg += `💳 *Pagamento:* ${PAGAMENTO_LABELS[formaPagamento]}\n\n`;
         cart.forEach((i, n) => {
+          const qtd = i.qtd || 1;
           const nomeDisplay =
             i.bebidaId && bebidaQtd[i.bebidaId] > 1
               ? `${BEBIDAS.find((x) => x.id === i.bebidaId).nome} ×${bebidaQtd[i.bebidaId]}`
-              : i.nome;
-          msg += `*${n + 1}. ${nomeDisplay}* — R$ ${fmt(i.preco)}\n`;
+              : qtd > 1
+                ? `${i.nome} ×${qtd}`
+                : i.nome;
+          msg += `*${n + 1}. ${nomeDisplay}* — R$ ${fmt(i.preco * qtd)}\n`;
           if (i.detalhe) msg += `   ➕ ${i.detalhe}\n`;
           if (i.obs) msg += `   📝 ${i.obs}\n`;
           msg += "\n";
@@ -693,6 +766,7 @@
 
       /* INIT */
       renderBurgers();
+      renderSanduiches();
       renderCombos();
       renderBatatas();
       renderBebidas();

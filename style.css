@@ -742,38 +742,22 @@
         cursor: not-allowed;
       }
 
-      /* ── BATATAS ── */
-      .batata-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 8px;
+      /* ── PETISCOS (batatas, almofada de queijo) ──
+         Reaproveita a casca do .burger-card (foto + info), mas sem os
+         afetos de "cartão inteiro é clicável" — aqui só o seletor de
+         tamanho e o botão de adicionar são interativos, não abre drawer. */
+      .petisco-card {
+        cursor: default;
       }
-      .batata-card {
-        background: var(--white);
-        border: 2px solid var(--black);
-        border-radius: var(--radius);
-        overflow: hidden;
-        box-shadow: 3px 3px 0 var(--black);
+      .petisco-card:active {
+        transform: none;
+        box-shadow: 4px 4px 0 var(--black);
       }
-      .batata-header {
-        background: var(--gold);
-        padding: 7px 11px;
-        border-bottom: 2px solid var(--black);
-      }
-      .batata-nome {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 0.95rem;
-        letter-spacing: 1px;
-      }
-      .batata-body {
-        padding: 9px 11px;
-      }
-      .batata-desc {
-        font-size: 0.72rem;
-        color: #5a4a30;
-        line-height: 1.4;
-        margin-bottom: 8px;
+      @media (hover: hover) {
+        .petisco-card:hover {
+          transform: none;
+          box-shadow: 4px 4px 0 var(--black);
+        }
       }
       .batata-tamanhos {
         display: flex;
@@ -1125,6 +1109,13 @@
         font-size: 0.95rem;
         color: var(--black);
         white-space: nowrap;
+      }
+      .order-item-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 5px;
+        flex-shrink: 0;
       }
       .btn-remove {
         background: var(--red);

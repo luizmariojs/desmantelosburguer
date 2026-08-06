@@ -82,6 +82,31 @@ const CARDAPIO_DATA = {
       descricao:
         "Pão Brioche amanteigado, 2 blends de 130g assados na brasa, queijo cheddar (2 fatias), bacon, molho especial.",
     },
+    {
+      id: 9,
+      nome: "Mini Hambúrguer",
+      badge: "novidade",
+      imagem: "img/hamburgueres/mini-hamburguer.webp",
+      preco: { burger: 7.0, combo: 12.0, completo: 19.0 },
+      descricao:
+        "Pão brioche, blend 40g assado na brasa, queijo e molho especial da casa.",
+    },
+  ],
+
+  sanduiches: [
+    {
+      id: "s1",
+      nome: "Baguete de Cupim Desfiado",
+      badge: "",
+      imagem: "img/sanduiches/baguete-cupim.webp",
+      preco: { burger: 20.0, combo: 27.0, completo: 34.0 },
+      // sanduíche pronto (cupim já desfiado) — sem escolha de ponto da carne,
+      // diferente dos itens de "burgers", que têm por padrão (ver app.js/openCust)
+      temPontoCarne: false,
+      // troca a palavra "burger" pelos rótulos do tier ("SÓ O BAGUETE" etc.) — ver app.js/openCust
+      substantivo: "baguete",
+      descricao: "Pão baguete, cupim desfiado, queijo, molho da casa e salada.",
+    },
   ],
 
   combos: [
@@ -127,6 +152,17 @@ const CARDAPIO_DATA = {
       emoji: "🧀",
       tamanhos: [
         { label: "M", preco: 12.0 },
+        { label: "G", preco: 20.0 },
+      ],
+    },
+    {
+      id: "aq",
+      nome: "Almofada de Queijo",
+      desc: "Queijo gouda empanado e frito, acompanha geleia de pimenta.",
+      emoji: "🧀",
+      imagem: "img/petiscos/almofada-queijo.webp",
+      tamanhos: [
+        { label: "P", preco: 12.0 },
         { label: "G", preco: 20.0 },
       ],
     },
