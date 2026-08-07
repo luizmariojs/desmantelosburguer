@@ -726,6 +726,8 @@
         trackEvent("order_sent", "whatsapp", null, {
           entrega_tipo: entregaTipo,
           forma_pagamento: formaPagamento,
+          value: calcTotal(),
+          currency: "BRL",
         });
       }
 
