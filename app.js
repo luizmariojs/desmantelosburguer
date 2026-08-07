@@ -9,7 +9,7 @@
       const CARDAPIO = CARDAPIO_DATA.burgers;
       const SANDUICHES = CARDAPIO_DATA.sanduiches;
       const COMBOS = CARDAPIO_DATA.combos;
-      const BATATAS = CARDAPIO_DATA.batatas;
+      const PETISCOS = CARDAPIO_DATA.petiscos;
       const BEBIDAS = CARDAPIO_DATA.bebidas;
 
       /* ═══════════════════════════════════════
@@ -48,17 +48,10 @@
         { id: "ao-ponto", label: "Ao ponto" },
         { id: "bem-passada", label: "Bem passada" },
       ];
-      const REFRIS = [
-        { id: "coca", label: "Coca Lata" },
-        { id: "coca-zero", label: "Coca Zero Lata" },
-        { id: "guarana", label: "Guaraná Lata" },
-        { id: "guarana-zero", label: "Guaraná Zero Lata" },
-        { id: "fanta", label: "Fanta Lata" },
-        { id: "sprite", label: "Sprite Lata" },
-        { id: "sprite-zero", label: "Sprite Zero Lata" },
-        { id: "h2o", label: "H2O Lata" },
-      ];
-      const batataSel = {};
+      // Bebidas marcadas com comboRefri:true em cardapio.js — fonte única de
+      // sabores, compartilhada com a seção Bebidas (ver design da unificação).
+      const REFRIS = BEBIDAS.filter((b) => b.comboRefri);
+      const petiscoSel = {};
       const bebidaQtd = {}; // {bid: quantidade} — estado independente do cart
 
       /* ═══════════════════════════════════════
@@ -181,10 +174,10 @@
         document.getElementById(`btnCombo-${cid}`).disabled = false;
       }
 
-      function renderBatatas() {
+      function renderPetiscos() {
         const frag = document.createDocumentFragment();
-        BATATAS.forEach((b) => {
-          batataSel[b.id] = b.tamanhos[0];
+        PETISCOS.forEach((b) => {
+          petiscoSel[b.id] = b.tamanhos[0];
           const art = document.createElement("article");
           art.className = "burger-card petisco-card";
           art.innerHTML = `
@@ -200,7 +193,7 @@
           <div class="burger-name">${b.emoji} ${b.nome}</div>
           <div class="burger-desc">${b.desc}</div>
         </div>
-        <div class="batata-tamanhos" id="tam-${b.id}">
+        <div class="petisco-tamanhos" id="tam-${b.id}">
           ${b.tamanhos
             .map(
               (t, i) => `
@@ -210,11 +203,11 @@
             )
             .join("")}
         </div>
-        <button class="btn-pedir-bat" onclick="addBatata('${b.id}')">+ ADICIONAR</button>
+        <button class="btn-pedir-petisco" onclick="addPetisco('${b.id}')">+ ADICIONAR</button>
       </div>`;
           frag.appendChild(art);
         });
-        document.getElementById("menu-batatas").appendChild(frag);
+        document.getElementById("menu-petiscos").appendChild(frag);
       }
 
       /* ═══════════════════════════════════════
@@ -277,7 +270,7 @@
         <div class="tier-opt" onclick="selectCustRefri('${r.id}')" id="custRefri-${r.id}">
           <div class="tier-radio"><div class="tier-radio-dot"></div></div>
           <div class="tier-opt-info">
-            <div class="tier-opt-label">${r.label}</div>
+            <div class="tier-opt-label">${r.nome}</div>
           </div>
         </div>`,
       ).join("")}
@@ -423,7 +416,7 @@
         const obs = document.getElementById("custObs")?.value.trim() || "";
         const tierNome = tierNomes[custTierIdx];
         const refriLabel = incluiRefri
-          ? REFRIS.find((r) => r.id === custRefri).label
+          ? REFRIS.find((r) => r.id === custRefri).nome
           : null;
         const pontoLabel = temPonto
           ? PONTOS.find((p) => p.id === custPonto).label
@@ -456,18 +449,18 @@
       /* ═══════════════════════════════════════
    ➕  ADD ITENS SIMPLES
    ═══════════════════════════════════════ */
-      function selectTam(batId, idx) {
-        const bat = BATATAS.find((b) => b.id === batId);
-        batataSel[batId] = bat.tamanhos[idx];
-        bat.tamanhos.forEach((_, i) => {
+      function selectTam(id, idx) {
+        const pet = PETISCOS.find((b) => b.id === id);
+        petiscoSel[id] = pet.tamanhos[idx];
+        pet.tamanhos.forEach((_, i) => {
           document
-            .getElementById(`tam-${batId}-${i}`)
+            .getElementById(`tam-${id}-${i}`)
             ?.classList.toggle("selected", i === idx);
         });
       }
-      function addBatata(bid) {
-        const b = BATATAS.find((x) => x.id === bid);
-        const tam = batataSel[bid];
+      function addPetisco(id) {
+        const b = PETISCOS.find((x) => x.id === id);
+        const tam = petiscoSel[id];
         cart.push({
           id: Date.now(),
           nome: `${b.nome} (${tam.label})`,
@@ -863,6 +856,6 @@
       renderBurgers();
       renderSanduiches();
       renderCombos();
-      renderBatatas();
+      renderPetiscos();
       renderBebidas();
       initNavObserver();

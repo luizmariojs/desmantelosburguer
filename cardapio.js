@@ -125,7 +125,7 @@ const CARDAPIO_DATA = {
       emoji: "🤠",
       descricao: "Pra galera com fome de cangaceiro.",
       // "Batata Frita GG" é exclusiva desta composição — não é um tamanho
-      // vendido avulso, por isso não existe em BATATAS.tamanhos.
+      // vendido avulso, por isso não existe em PETISCOS.tamanhos.
       itens: [
         "4 Burgers Arretado",
         "1 Porção de Batata Frita GG",
@@ -134,7 +134,7 @@ const CARDAPIO_DATA = {
     },
   ],
 
-  batatas: [
+  petiscos: [
     {
       id: "bf",
       nome: "Batata Frita",
@@ -169,7 +169,17 @@ const CARDAPIO_DATA = {
   ],
 
   bebidas: [
-    { id: "b1", nome: "Refrigerante lata", preco: 6.0, emoji: "🥤" },
+    // comboRefri: true marca os sabores que entram como opção de refrigerante
+    // no drawer de personalização de hambúrguer/sanduíche (ver app.js, REFRIS) —
+    // ausência do campo já significa "não aparece lá".
+    { id: "coca", nome: "Coca Lata", preco: 6.0, emoji: "🥤", comboRefri: true },
+    { id: "coca-zero", nome: "Coca Zero Lata", preco: 6.0, emoji: "🥤", comboRefri: true },
+    { id: "guarana", nome: "Guaraná Lata", preco: 6.0, emoji: "🥤", comboRefri: true },
+    { id: "guarana-zero", nome: "Guaraná Zero Lata", preco: 6.0, emoji: "🥤", comboRefri: true },
+    { id: "fanta", nome: "Fanta Lata", preco: 6.0, emoji: "🥤", comboRefri: true },
+    { id: "sprite", nome: "Sprite Lata", preco: 6.0, emoji: "🥤", comboRefri: true },
+    { id: "sprite-zero", nome: "Sprite Zero Lata", preco: 6.0, emoji: "🥤", comboRefri: true },
+    { id: "h2o", nome: "H2O Lata", preco: 6.0, emoji: "🥤", comboRefri: true },
     { id: "b2", nome: "Refrigerante 250ml", preco: 4.0, emoji: "🥤" },
     { id: "b3", nome: "Antartica 1L", preco: 10.0, emoji: "🍾" },
     { id: "b4", nome: "Coca-Cola 1L", preco: 12.0, emoji: "🍾" },

@@ -759,7 +759,7 @@
           box-shadow: 4px 4px 0 var(--black);
         }
       }
-      .batata-tamanhos {
+      .petisco-tamanhos {
         display: flex;
         gap: 5px;
         flex-wrap: wrap;
@@ -786,7 +786,7 @@
         text-align: center;
         margin-top: 1px;
       }
-      .btn-pedir-bat {
+      .btn-pedir-petisco {
         display: block;
         width: 100%;
         padding: 7px;
@@ -801,7 +801,7 @@
         box-shadow: 2px 2px 0 var(--black);
         -webkit-tap-highlight-color: transparent;
       }
-      .btn-pedir-bat:active {
+      .btn-pedir-petisco:active {
         transform: translate(2px, 2px);
         box-shadow: none;
       }
