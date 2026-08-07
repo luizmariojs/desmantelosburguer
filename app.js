@@ -42,10 +42,21 @@
       let custTierIdx = 0;
       let custAdds = new Set();
       let custPonto = null;
+      let custRefri = null;
       const PONTOS = [
         { id: "mal-passada", label: "Mal passada" },
         { id: "ao-ponto", label: "Ao ponto" },
         { id: "bem-passada", label: "Bem passada" },
+      ];
+      const REFRIS = [
+        { id: "coca", label: "Coca Lata" },
+        { id: "coca-zero", label: "Coca Zero Lata" },
+        { id: "guarana", label: "Guaraná Lata" },
+        { id: "guarana-zero", label: "Guaraná Zero Lata" },
+        { id: "fanta", label: "Fanta Lata" },
+        { id: "sprite", label: "Sprite Lata" },
+        { id: "sprite-zero", label: "Sprite Zero Lata" },
+        { id: "h2o", label: "H2O Lata" },
       ];
       const batataSel = {};
       const bebidaQtd = {}; // {bid: quantidade} — estado independente do cart
@@ -228,6 +239,7 @@
         custTierIdx = 0;
         custAdds = new Set();
         custPonto = null;
+        custRefri = null;
         const b = findItem(origem, id);
         const temPonto = b.temPontoCarne !== false;
 
@@ -256,6 +268,19 @@
         </div>`,
         )
         .join("")}
+    </div>
+
+    <div class="cust-section-label" id="refriLabel" style="display:none">REFRIGERANTE</div>
+    <div class="tier-row" id="refriRow" style="display:none">
+      ${REFRIS.map(
+        (r) => `
+        <div class="tier-opt" onclick="selectCustRefri('${r.id}')" id="custRefri-${r.id}">
+          <div class="tier-radio"><div class="tier-radio-dot"></div></div>
+          <div class="tier-opt-info">
+            <div class="tier-opt-label">${r.label}</div>
+          </div>
+        </div>`,
+      ).join("")}
     </div>
 
     ${
@@ -314,6 +339,11 @@
             .getElementById(`custTier-${i}`)
             ?.classList.toggle("selected", i === idx);
         }
+        const incluiRefri = idx > 0;
+        const refriLabel = document.getElementById("refriLabel");
+        const refriRow = document.getElementById("refriRow");
+        if (refriLabel) refriLabel.style.display = incluiRefri ? "" : "none";
+        if (refriRow) refriRow.style.display = incluiRefri ? "" : "none";
         updateCustTotal();
       }
 
@@ -324,6 +354,16 @@
           document
             .getElementById(`custPonto-${p.id}`)
             ?.classList.toggle("selected", p.id === pid);
+        });
+      }
+
+      function selectCustRefri(rid) {
+        custRefri = rid;
+        document.getElementById("refriRow")?.classList.remove("invalid");
+        REFRIS.forEach((r) => {
+          document
+            .getElementById(`custRefri-${r.id}`)
+            ?.classList.toggle("selected", r.id === rid);
         });
       }
 
@@ -350,11 +390,27 @@
         document.getElementById("custTotal").textContent = `R$ ${fmt(total)}`;
       }
 
+      // Reflow+shake (já existia por classe) + agora também rola até o campo,
+      // reaproveitado pra ponto da carne e refrigerante.
+      function flagInvalid(el) {
+        if (!el) return;
+        el.classList.remove("invalid");
+        void el.offsetWidth;
+        el.classList.add("invalid");
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
       function confirmCust() {
         const b = findItem(custOrigem, custItemId);
         const temPonto = b.temPontoCarne !== false;
+        const incluiRefri = custTierIdx > 0;
+        if (incluiRefri && !custRefri) {
+          flagInvalid(document.getElementById("refriRow"));
+          showToast("Escolha o sabor do refrigerante! 🥤");
+          return;
+        }
         if (temPonto && !custPonto) {
-          document.getElementById("pontoRow")?.classList.add("invalid");
+          flagInvalid(document.getElementById("pontoRow"));
           showToast("Escolha o ponto da carne! 🥩");
           return;
         }
@@ -366,11 +422,15 @@
         const addsTotal = adds.reduce((s, a) => s + a.preco, 0);
         const obs = document.getElementById("custObs")?.value.trim() || "";
         const tierNome = tierNomes[custTierIdx];
+        const refriLabel = incluiRefri
+          ? REFRIS.find((r) => r.id === custRefri).label
+          : null;
         const pontoLabel = temPonto
           ? PONTOS.find((p) => p.id === custPonto).label
           : null;
         const detalheParts = [
           tierNome !== tierNomes[0] ? tierNome : null,
+          refriLabel ? `Refri: ${refriLabel}` : null,
           pontoLabel ? `Ponto: ${pontoLabel}` : null,
           adds.length
             ? `Adicionais: ${adds.map((a) => a.nome).join(", ")}`
@@ -593,6 +653,23 @@
         closeDrawer();
       }
 
+      // Reset completo depois que um pedido é enviado — diferente de clearCart()
+      // (botão "limpar tudo", só mexe no carrinho), aqui também zera nome/entrega/
+      // pagamento pra deixar o site pronto pro próximo pedido, sem dar reload.
+      function resetPedidoForm() {
+        clearCart();
+        const nomeInput = document.getElementById("clienteNome");
+        if (nomeInput) nomeInput.value = "";
+        entregaTipo = null;
+        formaPagamento = null;
+        document
+          .querySelectorAll("#entregaRow .pill-opt")
+          .forEach((b) => b.classList.remove("selected"));
+        document
+          .querySelectorAll("#pagamentoRow .pill-opt")
+          .forEach((b) => b.classList.remove("selected"));
+      }
+
       /* ═══════════════════════════════════════
    🗂️  DRAWER PEDIDO
    ═══════════════════════════════════════ */
@@ -729,6 +806,7 @@
           value: calcTotal(),
           currency: "BRL",
         });
+        resetPedidoForm();
       }
 
       /* ═══════════════════════════════════════
