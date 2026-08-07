@@ -298,8 +298,7 @@
         document.getElementById("custOverlay").classList.add("open");
         document.body.style.overflow = "hidden";
 
-        // analytics placeholder
-        trackEvent("burger_view", b.nome);
+        trackEvent("item_view", b.nome, origem === "sanduiches" ? "sanduiche" : "burger");
       }
 
       function closeCust() {
@@ -377,6 +376,7 @@
             ? `Adicionais: ${adds.map((a) => a.nome).join(", ")}`
             : null,
         ].filter(Boolean);
+        const categoria = custOrigem === "sanduiches" ? "sanduiche" : "burger";
         cart.push({
           id: Date.now(),
           nome: b.nome,
@@ -385,11 +385,12 @@
           obs,
           adds,
           qtd: 1,
+          categoria,
         });
         closeCust();
         updateCartUI();
         showToast(`${b.nome} adicionado! 🔥`);
-        trackEvent("burger_add", b.nome);
+        trackEvent("item_add", b.nome, categoria);
       }
 
       /* ═══════════════════════════════════════
@@ -415,9 +416,11 @@
           obs: "",
           adds: [],
           qtd: 1,
+          categoria: "petisco",
         });
         updateCartUI();
         showToast(`${b.nome} ${tam.label} adicionada! 🍟`);
+        trackEvent("item_add", b.nome, "petisco");
       }
       function addCombo(cid) {
         const c = COMBOS.find((x) => x.id === cid);
@@ -433,9 +436,11 @@
           obs,
           adds: [],
           qtd: 1,
+          categoria: "combo",
         });
         updateCartUI();
         showToast(`${c.nome} adicionado! 🔥`);
+        trackEvent("item_add", c.nome, "combo");
       }
       function renderBebidas() {
         const frag = document.createDocumentFragment();
@@ -467,6 +472,7 @@
         syncBebidaCart(bid);
         const b = BEBIDAS.find((x) => x.id === bid);
         showToast(`${b.nome} adicionado! 🥤`);
+        trackEvent("item_add", b.nome, "bebida");
       }
 
       function bebidaDecrement(bid) {
@@ -509,6 +515,7 @@
             obs: "",
             adds: [],
             _qtdLabel: qty > 1 ? ` ×${qty}` : "",
+            categoria: "bebida",
           });
         }
         updateCartUI();
@@ -709,23 +716,31 @@
           if (i.detalhe) msg += `   ➕ ${i.detalhe}\n`;
           if (i.obs) msg += `   📝 ${i.obs}\n`;
           msg += "\n";
+          trackEvent("item_order", i.nome, i.categoria, { qtd });
         });
         msg += `──────────────────\n💰 *TOTAL: R$ ${fmt(calcTotal())}*\n──────────────────\n\nAguardo confirmação! 🤠`;
         window.open(
           `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`,
           "_blank",
         );
-        trackEvent("order_sent", "whatsapp");
+        trackEvent("order_sent", "whatsapp", null, {
+          entrega_tipo: entregaTipo,
+          forma_pagamento: formaPagamento,
+        });
       }
 
       /* ═══════════════════════════════════════
-   📊  ANALYTICS PLACEHOLDER
-   Substitua por gtag() quando configurar
-   Google Analytics 4 no projeto.
+   📊  ANALYTICS (GA4)
    ═══════════════════════════════════════ */
-      function trackEvent(event, label) {
-        console.log(`[Analytics] ${event}: ${label}`);
-        // gtag('event', event, { item_name: label });
+      // itemName/category populam item_name/item_category; extra é mesclado
+      // como está (ex: {qtd}, {entrega_tipo, forma_pagamento}) — cada evento
+      // usa só os campos que fazem sentido pra ele.
+      function trackEvent(event, itemName, category, extra) {
+        if (typeof gtag !== "function") return;
+        const params = { ...extra };
+        if (itemName) params.item_name = itemName;
+        if (category) params.item_category = category;
+        gtag("event", event, params);
       }
 
       /* ═══════════════════════════════════════
