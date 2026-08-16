@@ -23,6 +23,8 @@ const CARDAPIO=[
   {id:6, nome:"Maria Bonita",   preco:{burger:25.99,combo:31.00,completo:37.00}, descricao:"2x blend 130g, cheddar 2x, molho especial"},
   {id:7, nome:"Rei do Cangaço", preco:{burger:28.99,combo:34.00,completo:40.00}, descricao:"Blend 130g, cheddar, costela, cream cheese"},
   {id:8, nome:"Desmantelado",   preco:{burger:28.99,combo:34.00,completo:40.00}, descricao:"2x blend 130g, cheddar 2x, bacon"},
+  {id:9, nome:"Mini Hambúrguer",preco:{burger:7.00, combo:12.00,completo:19.00}, descricao:"Blend 40g, queijo, molho especial"},
+  {id:10,nome:"Baguete de Cupim Desfiado", preco:{burger:20.00,combo:27.00,completo:34.00}, descricao:"Cupim desfiado, queijo, molho da casa, salada", temPontoCarne:false},
 ];
 
 const COMBOS=[
@@ -30,15 +32,24 @@ const COMBOS=[
   {id:"c2", nome:"Combo Cangaceiros",            preco:96.99, detalhe:"4 Arretado + Batata GG + Refri 2L"},
 ];
 
-const BATATAS=[
+const PETISCOS=[
   {id:"bf-p", nome:"Batata Frita P",        preco:7.00,  detalhe:"Batata frita"},
   {id:"bf-g", nome:"Batata Frita G",        preco:10.00, detalhe:"Batata frita"},
   {id:"bt-m", nome:"Batata Turbinada M",    preco:12.00, detalhe:"Batata + cheddar + farofa bacon"},
   {id:"bt-g", nome:"Batata Turbinada G",    preco:20.00, detalhe:"Batata + cheddar + farofa bacon"},
+  {id:"aq-p", nome:"Almofada de Queijo P",  preco:12.00, detalhe:"Queijo empanado e frito + geleia de pimenta"},
+  {id:"aq-g", nome:"Almofada de Queijo G",  preco:20.00, detalhe:"Queijo empanado e frito + geleia de pimenta"},
 ];
 
 const BEBIDAS=[
-  {id:"b1", nome:"Refrigerante lata",    preco:6.00},
+  {id:"coca",        nome:"Coca Lata",        preco:6.00, comboRefri:true},
+  {id:"coca-zero",   nome:"Coca Zero Lata",   preco:6.00, comboRefri:true},
+  {id:"guarana",     nome:"Guaraná Lata",     preco:6.00, comboRefri:true},
+  {id:"guarana-zero",nome:"Guaraná Zero Lata",preco:6.00, comboRefri:true},
+  {id:"fanta",       nome:"Fanta Lata",       preco:6.00, comboRefri:true},
+  {id:"sprite",      nome:"Sprite Lata",      preco:6.00, comboRefri:true},
+  {id:"sprite-zero", nome:"Sprite Zero Lata", preco:6.00, comboRefri:true},
+  {id:"h2o",         nome:"H2O Lata",         preco:6.00, comboRefri:true},
   {id:"b2", nome:"Refrigerante 250ml",   preco:4.00},
   {id:"b3", nome:"Antartica 1L",         preco:10.00},
   {id:"b4", nome:"Coca-Cola 1L",         preco:12.00},
@@ -57,7 +68,7 @@ const CATEGORIAS=[
     }))
   },
   {id:"combos",   label:"🔥 COMBOS",   itens:()=>COMBOS.map(c=>({id:c.id,nome:c.nome,preco:c.preco,detalhe:c.detalhe,_combo:c}))},
-  {id:"batatas",  label:"🍟 BATATAS",  itens:()=>BATATAS.map(b=>({id:b.id,nome:b.nome,preco:b.preco,detalhe:b.detalhe}))},
+  {id:"petiscos", label:"🍟 PETISCOS", itens:()=>PETISCOS.map(b=>({id:b.id,nome:b.nome,preco:b.preco,detalhe:b.detalhe}))},
   {id:"bebidas",  label:"🥤 BEBIDAS",  itens:()=>BEBIDAS.map(b=>({id:b.id,nome:b.nome,preco:b.preco,detalhe:""}))},
   {id:"adicionais",label:"➕ ADICIONAIS",itens:()=>ADICIONAIS.map(a=>({id:`add-${a.id}`,nome:a.nome,preco:a.preco,detalhe:"Adicional avulso"}))},
 ];
@@ -82,6 +93,7 @@ let drawerBurgerId=null;
 let drawerTierIdx=0;
 let drawerAdds=new Set();
 let drawerPonto=null;
+let drawerRefri=null;
 let drawerComboId=null;
 let drawerComboPonto=null;
 
@@ -147,14 +159,17 @@ function criarItemEl(item){
     ?`abrirDrawerBurger(${item._burger.id})`
     :item._combo
       ?`abrirDrawerCombo('${item._combo.id}')`
-      :`adicionarItem(${JSON.stringify(item)})`;
+      :"";
   div.innerHTML=`
     <div class="produto-info">
       <div class="produto-nome">${item.nome}</div>
       ${item.detalhe&&!item._burger&&!item._combo?`<div class="produto-detalhe">${item.detalhe}</div>`:""}
     </div>
     <div class="produto-preco">${fmt(item.preco)}</div>
-    <button class="btn-add-item" onclick="${onclick}">+</button>`;
+    <button class="btn-add-item"${onclick?` onclick="${onclick}"`:""}>+</button>`;
+  if(!item._burger&&!item._combo){
+    div.querySelector(".btn-add-item").addEventListener("click",()=>adicionarItem(item));
+  }
   return div;
 }
 
@@ -169,6 +184,7 @@ function abrirDrawerBurger(bid){
   drawerTierIdx=0;
   drawerAdds=new Set();
   drawerPonto=null;
+  drawerRefri=null;
   const b=CARDAPIO.find(x=>x.id===bid);
   document.getElementById("pdvDrawerNome").textContent=b.nome;
 
@@ -177,6 +193,7 @@ function abrirDrawerBurger(bid){
     {label:"Burger + Refri lata",      preco:b.preco.combo},
     {label:"Burger + Refri + Batata P",preco:b.preco.completo},
   ];
+  const refris=BEBIDAS.filter(x=>x.comboRefri);
 
   document.getElementById("pdvDrawerBody").innerHTML=`
     <div class="pdv-section-label">OPÇÃO</div>
@@ -189,6 +206,7 @@ function abrirDrawerBurger(bid){
           <span class="pdv-tier-preco">R$&nbsp;${fmtN(t.preco)}</span>
         </div>`).join("")}
     </div>
+    ${b.temPontoCarne!==false?`
     <div class="pdv-section-label">PONTO DA CARNE</div>
     <div class="pdv-tier-row" id="pdvPontoRow">
       ${PONTOS.map(p=>`
@@ -196,6 +214,16 @@ function abrirDrawerBurger(bid){
           <div class="pdv-tier-radio"></div>
           <span class="pdv-tier-label">${p.label}</span>
         </div>`).join("")}
+    </div>`:""}
+    <div id="pdvRefriSection" style="display:none">
+      <div class="pdv-section-label">REFRIGERANTE</div>
+      <div class="pdv-tier-row" id="pdvRefriRow">
+        ${refris.map(r=>`
+          <div class="pdv-tier-opt" id="pdvRefri-${r.id}" onclick="selecionarRefri('${r.id}')">
+            <div class="pdv-tier-radio"></div>
+            <span class="pdv-tier-label">${r.nome}</span>
+          </div>`).join("")}
+      </div>
     </div>
     <div class="pdv-section-label">ADICIONAIS</div>
     <div class="pdv-adds-grid">
@@ -212,7 +240,7 @@ function abrirDrawerBurger(bid){
     <div style="height:8px"></div>`;
 
   atualizarTotalDrawer();
-  document.getElementById("btnPdvConfirmar").disabled=true;
+  atualizarConfirmarBurger();
   document.getElementById("pdvDrawerBody").scrollTop=0;
   document.getElementById("pdvDrawer").classList.add("open");
   document.getElementById("pdvOverlay").classList.add("open");
@@ -224,7 +252,15 @@ function selecionarPonto(pid){
   PONTOS.forEach(p=>{
     document.getElementById(`pdvPonto-${p.id}`)?.classList.toggle("selected",p.id===pid);
   });
-  document.getElementById("btnPdvConfirmar").disabled=false;
+  atualizarConfirmarBurger();
+}
+
+function selecionarRefri(rid){
+  drawerRefri=rid;
+  BEBIDAS.filter(r=>r.comboRefri).forEach(r=>{
+    document.getElementById(`pdvRefri-${r.id}`)?.classList.toggle("selected",r.id===rid);
+  });
+  atualizarConfirmarBurger();
 }
 
 function fecharDrawerBurger(){
@@ -237,7 +273,18 @@ function selecionarTier(idx){
   drawerTierIdx=idx;
   for(let i=0;i<3;i++)
     document.getElementById(`pdvTier-${i}`)?.classList.toggle("selected",i===idx);
+  const refriSection=document.getElementById("pdvRefriSection");
+  if(refriSection) refriSection.style.display=idx>0?"":"none";
   atualizarTotalDrawer();
+  atualizarConfirmarBurger();
+}
+
+function atualizarConfirmarBurger(){
+  const b=CARDAPIO.find(x=>x.id===drawerBurgerId);
+  if(!b)return;
+  const pontoOk=b.temPontoCarne===false||!!drawerPonto;
+  const refriOk=drawerTierIdx===0||!!drawerRefri;
+  document.getElementById("btnPdvConfirmar").disabled=!(pontoOk&&refriOk);
 }
 
 function toggleAddPdv(aid){
@@ -266,8 +313,10 @@ function confirmarBurger(){
   const adds=ADICIONAIS.filter(a=>drawerAdds.has(a.id));
   const addsTotal=adds.reduce((s,a)=>s+a.preco,0);
   const obs=document.getElementById("pdvObs")?.value.trim()||"";
-  const pontoLabel=PONTOS.find(p=>p.id===drawerPonto).label;
-  const tier=`${tierLabels[drawerTierIdx]} · Ponto: ${pontoLabel}`;
+  const segmentos=[tierLabels[drawerTierIdx]];
+  if(drawerPonto) segmentos.push(`Ponto: ${PONTOS.find(p=>p.id===drawerPonto).label}`);
+  if(drawerRefri) segmentos.push(`Refri: ${BEBIDAS.find(r=>r.id===drawerRefri).nome}`);
+  const tier=segmentos.join(" · ");
   const preco=tierPrecos[drawerTierIdx]+addsTotal;
 
   pedido.push({
@@ -486,19 +535,19 @@ function renderPedido(){
   container.appendChild(frag);
 
   const sub=document.getElementById("pedidoSubtotais");
-  const cats={burgers:0,combos:0,batatas:0,bebidas:0,outros:0};
+  const cats={burgers:0,combos:0,petiscos:0,bebidas:0,outros:0};
   pedido.forEach(i=>{
     if(i.id.startsWith("burger"))cats.burgers+=i.preco_total;
-    else if(i.id.startsWith("c"))cats.combos+=i.preco_total;
-    else if(i.id.startsWith("bf")||i.id.startsWith("bt"))cats.batatas+=i.preco_total;
-    else if(i.id.startsWith("b"))cats.bebidas+=i.preco_total;
+    else if(COMBOS.some(c=>c.id===i.id))cats.combos+=i.preco_total;
+    else if(i.id.startsWith("bf")||i.id.startsWith("bt")||i.id.startsWith("aq"))cats.petiscos+=i.preco_total;
+    else if(BEBIDAS.some(b=>b.id===i.id))cats.bebidas+=i.preco_total;
     else cats.outros+=i.preco_total;
   });
   sub.innerHTML=Object.entries(cats)
     .filter(([,v])=>v>0)
     .map(([k,v])=>`
       <div class="pedido-linha">
-        <span>${{burgers:"🍔 Burgers",combos:"🔥 Combos",batatas:"🍟 Batatas",bebidas:"🥤 Bebidas",outros:"➕ Outros"}[k]}</span>
+        <span>${{burgers:"🍔 Burgers",combos:"🔥 Combos",petiscos:"🍟 Petiscos",bebidas:"🥤 Bebidas",outros:"➕ Outros"}[k]}</span>
         <span>R$ ${fmtN(v)}</span>
       </div>`).join("");
 }
