@@ -553,8 +553,50 @@ function renderPedido(){
 }
 
 /* ═══════════════════════════════════════════
-   🖨️  IMPRESSÃO — cupom sem largura fixa
+   🖨️  IMPRESSÃO — cupom de 32 colunas (bobina 58mm)
    ═══════════════════════════════════════════ */
+
+/* Tem que bater com --receipt-width no style.css:
+   48mm úteis / (0.6em × 2.5mm) = 32 colunas. */
+const RECEIPT_COLS=32;
+const REGUA="-".repeat(RECEIPT_COLS)+"\n";
+
+function centro(texto){
+  const pad=Math.max(0,Math.floor((RECEIPT_COLS-texto.length)/2));
+  return " ".repeat(pad)+texto+"\n";
+}
+
+/* Linha de "nome ....... preço" ocupando as 32 colunas.
+   Se não couber numa linha só, o preço desce pra linha própria alinhada à
+   direita em vez de abreviar o nome — a cozinha lê sob pressão e nome
+   truncado cria ambiguidade real entre combos parecidos. */
+function linhaPreco(label,preco){
+  const p=`R$ ${fmtN(preco)}`;
+  const folga=RECEIPT_COLS-label.length-p.length;
+  if(folga>=1) return label+" ".repeat(folga)+p+"\n";
+  return envolve(label)+p.padStart(RECEIPT_COLS)+"\n";
+}
+
+/* Quebra manual preservando o recuo. O pre-wrap do CSS também quebraria,
+   mas perderia o recuo na continuação — e aí o "+" dos adicionais deixaria
+   de parecer atrelado ao item de cima. */
+function envolve(texto,recuo=""){
+  const linhas=[];
+  let linha=recuo;
+  for(const palavra of texto.split(/\s+/)){
+    if(!palavra) continue;
+    const cand=linha.trim()?`${linha} ${palavra}`:recuo+palavra;
+    if(cand.length>RECEIPT_COLS&&linha.trim()){
+      linhas.push(linha);
+      linha=recuo+palavra;
+    }else{
+      linha=cand;
+    }
+  }
+  if(linha.trim()) linhas.push(linha);
+  return linhas.join("\n")+"\n";
+}
+
 function gerarCupom(){
   const cliente=document.getElementById("clienteInput").value.trim();
   const agora=new Date();
@@ -562,45 +604,45 @@ function gerarCupom(){
   const hora=agora.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
 
   let c="";
-  c+="DESMANTELO'S BURGUER\n";
-  c+="Hamburguer Artesanal na Brasa\n";
-  c+="(81) 9.8669-0346\n";
-  c+="---\n";
+  c+=centro("DESMANTELO'S BURGUER");
+  c+=centro("Hamburguer Artesanal na Brasa");
+  c+=centro("(81) 9.8669-0346");
+  c+=REGUA;
   c+=`${dia}  ${hora}\n`;
-  if(cliente) c+=`Cliente: ${cliente}\n`;
+  if(cliente) c+=envolve(`Cliente: ${cliente}`);
   const entregaLabel={delivery:"Delivery",retirada:"Retirada"}[entregaTipo]||"";
   if(entregaLabel) c+=`Entrega: ${entregaLabel}\n`;
-  c+="---\n";
+  c+=REGUA;
 
-  pedido.forEach((i,n)=>{
+  pedido.forEach(i=>{
     const qtd=i.qty>1?`${i.qty}x `:"";
     if(i._tipo==="burger"){
       // linha principal: nome + opção + preço
-      c+=`${qtd}${i.nome} (${i.tier})  R$ ${fmtN(i.preco_total)}\n`;
+      c+=linhaPreco(`${qtd}${i.nome} (${i.tier})`,i.preco_total);
       // adicionais atrelados
-      if(i.adds?.length) c+=`  + ${i.adds.map(a=>a.nome).join(", ")}\n`;
+      if(i.adds?.length) c+=envolve(`+ ${i.adds.map(a=>a.nome).join(", ")}`,"  ");
       // observação
-      if(i.obs) c+=`  Obs: ${i.obs}\n`;
+      if(i.obs) c+=envolve(`Obs: ${i.obs}`,"  ");
     } else if(i._tipo==="combo"){
       // combo tem burger na composição — cozinha precisa saber o quê preparar e o ponto
-      c+=`${qtd}${i.nome}  R$ ${fmtN(i.preco_total)}\n`;
-      c+=`  ${i.detalhe}\n`;
-      c+=`  Ponto: ${i.ponto}\n`;
-      if(i.obs) c+=`  Obs: ${i.obs}\n`;
+      c+=linhaPreco(`${qtd}${i.nome}`,i.preco_total);
+      c+=envolve(i.detalhe,"  ");
+      c+=envolve(`Ponto: ${i.ponto}`,"  ");
+      if(i.obs) c+=envolve(`Obs: ${i.obs}`,"  ");
     } else {
-      c+=`${qtd}${i.nome}  R$ ${fmtN(i.preco_total)}\n`;
+      c+=linhaPreco(`${qtd}${i.nome}`,i.preco_total);
       // remove detalhe do cupom para não-burgers/combos (desnecessário na cozinha)
     }
   });
 
   const total=pedido.reduce((s,i)=>s+i.preco_total,0);
-  c+="---\n";
-  c+=`TOTAL  R$ ${fmtN(total)}\n`;
+  c+=REGUA;
+  c+=linhaPreco("TOTAL",total);
   const pagLabel={dinheiro:"Dinheiro",pix:"Pix",cartao:"Cartão"}[formaPagamento]||"";
   if(pagLabel) c+=`Pagamento: ${pagLabel}\n`;
-  c+="---\n";
-  c+="Obrigado!\n";
-  c+="@desmantelosburguer\n";
+  c+=REGUA;
+  c+=centro("Obrigado!");
+  c+=centro("@desmantelosburguer");
   return c;
 }
 
