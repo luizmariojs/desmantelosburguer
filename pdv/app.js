@@ -616,14 +616,19 @@ function gerarCupom(){
   const dia=agora.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"});
   const hora=agora.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
 
-  /* Cada linha é {t:texto, b:bold}. Bold = nome do item e observação; o resto
-     (composição, ponto, adicionais) fica em peso normal, criando a hierarquia
-     que separa "o que é" de "como é". A observação é bold porque é a instrução
-     de exceção: perder um "sem cebola" custa o pedido refeito. */
+  /* Cada linha é {t:texto, b:marcado}. A marcação identifica nome de item e
+     observação — hoje ela não muda o peso (o cupom inteiro é 700, porque na
+     térmica o peso 400 sai falhado; ver style.css), mas fica registrada.
+     A hierarquia visual vem de duas coisas que não dependem de peso:
+     o nome do item em CAIXA ALTA e flush à esquerda, e os detalhes em caixa
+     mista e indentados. Em monoespaçada o caixa alto não custa caractere
+     nenhum a mais — separação de graça. */
   const L=[];
   const add=(t,b=false)=>L.push({t,b});
   const detalhe=(txt,recuo="  ")=>quebra(txt,RECEIPT_COLS,recuo).forEach(l=>add(l));
-  const item=(label,preco)=>linhasItem(label,preco).forEach(l=>add(l,true));
+  // qtd fica em caixa baixa ("2x") — só o nome sobe pra caixa alta
+  const item=(nome,preco,qtd="")=>
+    linhasItem(qtd+String(nome).toUpperCase(),preco).forEach(l=>add(l,true));
   const obs=txt=>quebra(`Obs: ${txt}`,RECEIPT_COLS,"  ").forEach(l=>add(l,true));
 
   add(centro("DESMANTELO'S BURGUER"),true);
@@ -641,7 +646,7 @@ function gerarCupom(){
     if(i._tipo==="burger"){
       // nome + preço; as escolhas (tamanho, ponto, refri) descem em linhas
       // próprias indentadas — mesmo padrão do combo, pra cozinha achar o ponto
-      item(`${qtd}${i.nome}`,i.preco_total);
+      item(i.nome,i.preco_total,qtd);
       const segs=i.tierSegs||(i.tier?i.tier.split(" · "):[]);
       segs.forEach(s=>detalhe(s));
       // adicionais atrelados
@@ -649,12 +654,12 @@ function gerarCupom(){
       if(i.obs) obs(i.obs);
     } else if(i._tipo==="combo"){
       // combo tem burger na composição — cozinha precisa saber o quê preparar e o ponto
-      item(`${qtd}${i.nome}`,i.preco_total);
+      item(i.nome,i.preco_total,qtd);
       detalhe(i.detalhe);
       detalhe(`Ponto: ${i.ponto}`);
       if(i.obs) obs(i.obs);
     } else {
-      item(`${qtd}${i.nome}`,i.preco_total);
+      item(i.nome,i.preco_total,qtd);
       // remove detalhe do cupom para não-burgers/combos (desnecessário na cozinha)
     }
   });
