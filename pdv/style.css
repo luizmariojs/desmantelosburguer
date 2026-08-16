@@ -340,12 +340,16 @@
         white-space:pre-wrap;
         /* CRÍTICO: cor declarada, nunca herdada. O body do PDV é tema escuro
            (color:#E8D9C4) e a térmica é 1-bit — qualquer tom que não seja preto
-           pleno vira dithering esparso e o traço da letra sai pontilhado.
-           font-weight:700 pelo mesmo motivo: haste fina some no dithering. */
+           pleno vira dithering esparso e o traço da letra sai pontilhado. */
         color:#000;
         background:#fff;
-        font-weight:700;
+        /* Hierarquia: nome do item e observação em bold (o que preparar e a
+           exceção), composição/ponto/adicionais em peso normal. Se o normal
+           sair fraco nesta impressora, subir 400 → 600 em vez de achatar tudo
+           em 700 de novo — a hierarquia é o que torna o cupom escaneável. */
+        font-weight:400;
       }
+      #printArea b{font-weight:700;}
     }
 
     /* ── FORMA DE PAGAMENTO ── */

@@ -323,7 +323,8 @@ function confirmarBurger(){
     uid:Date.now()+Math.random(),
     id:`burger-${b.id}-${drawerTierIdx}`,
     nome:b.nome,
-    tier,
+    tier,       // string juntada com " · " — usada no render da tela
+    tierSegs:segmentos,  // mesmos dados soltos — o cupom imprime um por linha
     adds,
     obs,
     preco,
@@ -559,34 +560,32 @@ function renderPedido(){
 /* Tem que bater com --receipt-width no style.css:
    48mm úteis / (0.6em × 2.5mm) = 32 colunas. */
 const RECEIPT_COLS=32;
-const REGUA="-".repeat(RECEIPT_COLS)+"\n";
+const REGUA="-".repeat(RECEIPT_COLS);
+
+/* O cupom virou HTML (por causa do bold no nome do item), então tudo que é
+   texto livre digitado pelo atendente — observação e nome do cliente —
+   precisa ser escapado. A observação é um <textarea>: um "<" digitado ali
+   corromperia o cupom inteiro se fosse direto pro innerHTML. */
+function escHtml(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
 
 function centro(texto){
   const pad=Math.max(0,Math.floor((RECEIPT_COLS-texto.length)/2));
-  return " ".repeat(pad)+texto+"\n";
+  return " ".repeat(pad)+texto;
 }
 
-/* Linha de "nome ....... preço" ocupando as 32 colunas.
-   Se não couber numa linha só, o preço desce pra linha própria alinhada à
-   direita em vez de abreviar o nome — a cozinha lê sob pressão e nome
-   truncado cria ambiguidade real entre combos parecidos. */
-function linhaPreco(label,preco){
-  const p=`R$ ${fmtN(preco)}`;
-  const folga=RECEIPT_COLS-label.length-p.length;
-  if(folga>=1) return label+" ".repeat(folga)+p+"\n";
-  return envolve(label)+p.padStart(RECEIPT_COLS)+"\n";
-}
-
-/* Quebra manual preservando o recuo. O pre-wrap do CSS também quebraria,
-   mas perderia o recuo na continuação — e aí o "+" dos adicionais deixaria
-   de parecer atrelado ao item de cima. */
-function envolve(texto,recuo=""){
+/* Quebra manual preservando o recuo. O pre-wrap do CSS também quebraria, mas
+   perderia o recuo na continuação — e aí o "+" dos adicionais deixaria de
+   parecer atrelado ao item de cima. O split em \s+ também normaliza as
+   quebras de linha que o atendente digita no textarea de observação. */
+function quebra(texto,largura=RECEIPT_COLS,recuo=""){
   const linhas=[];
   let linha=recuo;
-  for(const palavra of texto.split(/\s+/)){
+  for(const palavra of String(texto).split(/\s+/)){
     if(!palavra) continue;
     const cand=linha.trim()?`${linha} ${palavra}`:recuo+palavra;
-    if(cand.length>RECEIPT_COLS&&linha.trim()){
+    if(cand.length>largura&&linha.trim()){
       linhas.push(linha);
       linha=recuo+palavra;
     }else{
@@ -594,7 +593,21 @@ function envolve(texto,recuo=""){
     }
   }
   if(linha.trim()) linhas.push(linha);
-  return linhas.join("\n")+"\n";
+  return linhas;
+}
+
+/* Coluna de preço fixa: o preço fica SEMPRE alinhado à direita na primeira
+   linha do item, e o nome quebra por baixo. Assim o preço cai sempre na mesma
+   coluna, dá pra conferir a conta descendo o olho numa linha só.
+   Nome nunca é abreviado — a cozinha lê sob pressão e nome truncado cria
+   ambiguidade real entre combos parecidos. */
+function linhasItem(label,preco){
+  const p=`R$ ${fmtN(preco)}`;
+  const nomeW=RECEIPT_COLS-p.length-1;
+  const ls=quebra(label,nomeW);
+  // palavra única maior que a coluna do nome: preço desce pra linha própria
+  if(!ls.length||ls[0].length>nomeW) return [...ls,p.padStart(RECEIPT_COLS)];
+  return [ls[0].padEnd(nomeW)+" "+p,...ls.slice(1)];
 }
 
 function gerarCupom(){
@@ -603,52 +616,66 @@ function gerarCupom(){
   const dia=agora.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"});
   const hora=agora.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
 
-  let c="";
-  c+=centro("DESMANTELO'S BURGUER");
-  c+=centro("Hamburguer Artesanal na Brasa");
-  c+=centro("(81) 9.8669-0346");
-  c+=REGUA;
-  c+=`${dia}  ${hora}\n`;
-  if(cliente) c+=envolve(`Cliente: ${cliente}`);
+  /* Cada linha é {t:texto, b:bold}. Bold = nome do item e observação; o resto
+     (composição, ponto, adicionais) fica em peso normal, criando a hierarquia
+     que separa "o que é" de "como é". A observação é bold porque é a instrução
+     de exceção: perder um "sem cebola" custa o pedido refeito. */
+  const L=[];
+  const add=(t,b=false)=>L.push({t,b});
+  const detalhe=(txt,recuo="  ")=>quebra(txt,RECEIPT_COLS,recuo).forEach(l=>add(l));
+  const item=(label,preco)=>linhasItem(label,preco).forEach(l=>add(l,true));
+  const obs=txt=>quebra(`Obs: ${txt}`,RECEIPT_COLS,"  ").forEach(l=>add(l,true));
+
+  add(centro("DESMANTELO'S BURGUER"),true);
+  add(centro("Hamburguer Artesanal na Brasa"));
+  add(centro("(81) 9.8669-0346"));
+  add(REGUA);
+  add(`${dia}  ${hora}`);
+  if(cliente) detalhe(`Cliente: ${cliente}`,"");
   const entregaLabel={delivery:"Delivery",retirada:"Retirada"}[entregaTipo]||"";
-  if(entregaLabel) c+=`Entrega: ${entregaLabel}\n`;
-  c+=REGUA;
+  if(entregaLabel) add(`Entrega: ${entregaLabel}`);
+  add(REGUA);
 
   pedido.forEach(i=>{
     const qtd=i.qty>1?`${i.qty}x `:"";
     if(i._tipo==="burger"){
-      // linha principal: nome + opção + preço
-      c+=linhaPreco(`${qtd}${i.nome} (${i.tier})`,i.preco_total);
+      // nome + preço; as escolhas (tamanho, ponto, refri) descem em linhas
+      // próprias indentadas — mesmo padrão do combo, pra cozinha achar o ponto
+      item(`${qtd}${i.nome}`,i.preco_total);
+      const segs=i.tierSegs||(i.tier?i.tier.split(" · "):[]);
+      segs.forEach(s=>detalhe(s));
       // adicionais atrelados
-      if(i.adds?.length) c+=envolve(`+ ${i.adds.map(a=>a.nome).join(", ")}`,"  ");
-      // observação
-      if(i.obs) c+=envolve(`Obs: ${i.obs}`,"  ");
+      if(i.adds?.length) detalhe(`+ ${i.adds.map(a=>a.nome).join(", ")}`);
+      if(i.obs) obs(i.obs);
     } else if(i._tipo==="combo"){
       // combo tem burger na composição — cozinha precisa saber o quê preparar e o ponto
-      c+=linhaPreco(`${qtd}${i.nome}`,i.preco_total);
-      c+=envolve(i.detalhe,"  ");
-      c+=envolve(`Ponto: ${i.ponto}`,"  ");
-      if(i.obs) c+=envolve(`Obs: ${i.obs}`,"  ");
+      item(`${qtd}${i.nome}`,i.preco_total);
+      detalhe(i.detalhe);
+      detalhe(`Ponto: ${i.ponto}`);
+      if(i.obs) obs(i.obs);
     } else {
-      c+=linhaPreco(`${qtd}${i.nome}`,i.preco_total);
+      item(`${qtd}${i.nome}`,i.preco_total);
       // remove detalhe do cupom para não-burgers/combos (desnecessário na cozinha)
     }
   });
 
   const total=pedido.reduce((s,i)=>s+i.preco_total,0);
-  c+=REGUA;
-  c+=linhaPreco("TOTAL",total);
+  add(REGUA);
+  item("TOTAL",total);
   const pagLabel={dinheiro:"Dinheiro",pix:"Pix",cartao:"Cartão"}[formaPagamento]||"";
-  if(pagLabel) c+=`Pagamento: ${pagLabel}\n`;
-  c+=REGUA;
-  c+=centro("Obrigado!");
-  c+=centro("@desmantelosburguer");
-  return c;
+  if(pagLabel) add(`Pagamento: ${pagLabel}`);
+  add(REGUA);
+  add(centro("Obrigado!"));
+  add(centro("@desmantelosburguer"));
+
+  return L.map(o=>o.b?`<b>${escHtml(o.t)}</b>`:escHtml(o.t)).join("\n");
 }
 
 function imprimirCupom(){
   if(!pedido.length||!formaPagamento)return;
-  document.getElementById("printArea").textContent=gerarCupom();
+  // innerHTML (não textContent) porque o cupom carrega <b> no nome do item;
+  // todo texto livre já vai escapado por escHtml() dentro de gerarCupom()
+  document.getElementById("printArea").innerHTML=gerarCupom();
   window.print();
 }
 
