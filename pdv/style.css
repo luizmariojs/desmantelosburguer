@@ -343,12 +343,19 @@
            pleno vira dithering esparso e o traço da letra sai pontilhado. */
         color:#000;
         background:#fff;
-        /* Hierarquia: nome do item e observação em bold (o que preparar e a
-           exceção), composição/ponto/adicionais em peso normal. Se o normal
-           sair fraco nesta impressora, subir 400 → 600 em vez de achatar tudo
-           em 700 de novo — a hierarquia é o que torna o cupom escaneável. */
-        font-weight:400;
+        /* TUDO em 700. Testado na térmica em 2026-08-16: peso 400 sai falhado.
+           A 2.5mm de corpo a haste do Courier regular tem ~0.1mm, abaixo do
+           passo de ponto da impressora (0.125mm a 203dpi) — fica sub-ponto e a
+           cabeça térmica não fecha o traço.
+           Não adianta tentar um meio-termo: Courier New só tem 400 e 700, e
+           pela regra de casamento do CSS um 500/600 sobe pro 700 mesmo. Com
+           esta família a hierarquia NÃO pode vir do peso — hoje ela vem só do
+           recuo dos detalhes. */
+        font-weight:700;
       }
+      /* <b> continua marcando nome do item e observação. Não muda o peso hoje
+         (já é 700), mas mantém a marcação semântica caso a família de fonte
+         mude no futuro pra uma com mais pesos. */
       #printArea b{font-weight:700;}
     }
 
