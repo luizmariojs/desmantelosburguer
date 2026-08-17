@@ -676,11 +676,27 @@ function gerarCupom(){
   return L.map(o=>o.b?`<b>${escHtml(o.t)}</b>`:escHtml(o.t)).join("\n");
 }
 
-function imprimirCupom(){
+async function imprimirCupom(){
   if(!pedido.length||!formaPagamento)return;
   // innerHTML (não textContent) porque o cupom carrega <b> no nome do item;
   // todo texto livre já vai escapado por escHtml() dentro de gerarCupom()
   document.getElementById("printArea").innerHTML=gerarCupom();
+
+  /* #printArea fica display:none até a impressão, então o navegador nunca
+     precisou da Roboto Mono e não a carregou. Sem esperar aqui, a primeira
+     impressão do dia sai no fallback (Courier New) — justamente a fonte cujo
+     traço fino motivou a troca, e sem nenhum aviso de que saiu errado.
+     Falha aberta de propósito: se a fonte não carregar, imprime no fallback
+     em vez de travar o pedido. Cupom feio é problema; cupom não sair é pior. */
+  try{
+    await Promise.all([
+      document.fonts.load("500 12px 'Roboto Mono'"),
+      document.fonts.load("700 12px 'Roboto Mono'"),
+    ]);
+  }catch(e){
+    console.warn("[PDV] Roboto Mono não carregou, imprimindo no fallback:",e);
+  }
+
   window.print();
 }
 

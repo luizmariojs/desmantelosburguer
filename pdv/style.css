@@ -1,3 +1,27 @@
+    /* ── FONTE DO CUPOM ──
+       Roboto Mono variável (Apache 2.0), auto-hospedada. Serve pra impressão,
+       não pra tela.
+
+       Por que auto-hospedada: quem imprime é o notebook Windows do cliente, e
+       a AbcSites não administra aquela máquina — não dá pra instalar fonte lá.
+       Sobrariam só as fontes de fábrica do Windows, e nenhuma delas (Courier
+       New, Consolas, Lucida Console) oferece peso intermediário.
+
+       Por que Roboto Mono: precisamos de peso entre o regular e o bold. Na
+       térmica o Courier New regular sai falhado (haste ~0.1mm contra passo de
+       ponto de 0.125mm a 203dpi) e ele só tem 400 e 700 — sem meio-termo. O
+       arquivo é variável, então cobre 100–700 num binário de 32KB.
+       Avanço 0.6em, igual ao Courier New: o cálculo de colunas não muda. */
+    @font-face{
+      font-family:'Roboto Mono';
+      src:url('fonts/roboto-mono-latin.woff2') format('woff2');
+      font-weight:100 700;   /* eixo variável */
+      font-style:normal;
+      font-display:swap;
+      /* subset latin — cobre toda a acentuação PT-BR (ã, õ, ç, á…) */
+      unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+20AC,U+2122;
+    }
+
     /* ── TOKENS ── */
     :root{
       --red:#C41A1A;--red-dark:#8B0000;
@@ -327,7 +351,7 @@
         display:block !important;
         width:var(--receipt-width);
         padding:2mm 0;
-        font-family:'Courier New',monospace;
+        font-family:'Roboto Mono','Courier New',monospace;
         /* Courier avança 0.6em por caractere, então pra caber COLS colunas
            em --receipt-width o corpo tem que ser largura/(0.6×COLS).
            Com COLS=32: 48mm/19.2 = 2.5mm de corpo → avanço de 1.5mm.
@@ -343,19 +367,16 @@
            pleno vira dithering esparso e o traço da letra sai pontilhado. */
         color:#000;
         background:#fff;
-        /* TUDO em 700. Testado na térmica em 2026-08-16: peso 400 sai falhado.
-           A 2.5mm de corpo a haste do Courier regular tem ~0.1mm, abaixo do
-           passo de ponto da impressora (0.125mm a 203dpi) — fica sub-ponto e a
-           cabeça térmica não fecha o traço.
-           Não adianta tentar um meio-termo: Courier New só tem 400 e 700, e
-           pela regra de casamento do CSS um 500/600 sobe pro 700 mesmo. Com
-           esta família a hierarquia NÃO pode vir do peso — hoje ela vem só do
-           recuo dos detalhes. */
-        font-weight:700;
+        /* 500 nos detalhes, 700 no nome do item e observação.
+           O 500 existe de verdade aqui (fonte variável) — não é o caso do
+           Courier New, que só tem 400/700 e resolveria um 500 pra 700.
+           Escolhido 500 e não 400 porque a 2.5mm de corpo o traço precisa
+           passar do passo de ponto da impressora (0.125mm a 203dpi): foi
+           exatamente aí que o Courier New 400 falhou em 2026-08-16.
+           Se o 500 ainda sair fraco na térmica, subir pra 600 — agora existe
+           meio-termo de verdade pra subir. */
+        font-weight:500;
       }
-      /* <b> continua marcando nome do item e observação. Não muda o peso hoje
-         (já é 700), mas mantém a marcação semântica caso a família de fonte
-         mude no futuro pra uma com mais pesos. */
       #printArea b{font-weight:700;}
     }
 
