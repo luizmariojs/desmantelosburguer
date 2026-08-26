@@ -610,7 +610,11 @@ function linhasItem(label,preco){
   return [ls[0].padEnd(nomeW)+" "+p,...ls.slice(1)];
 }
 
-function gerarCupom(){
+/* via: 'cliente' (recibo completo, o que já existia) ou 'cozinha' (segunda
+   via, sem preço/pagamento — ver openspec/changes/cupom-cozinha). As duas
+   reaproveitam a mesma lógica de composição (quebra/centro/linhasItem);
+   só cabeçalho, item-com-ou-sem-preço e rodapé mudam por via. */
+function gerarCupom(via){
   const cliente=document.getElementById("clienteInput").value.trim();
   const agora=new Date();
   const dia=agora.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"});
@@ -627,13 +631,21 @@ function gerarCupom(){
   const add=(t,b=false)=>L.push({t,b});
   const detalhe=(txt,recuo="  ")=>quebra(txt,RECEIPT_COLS,recuo).forEach(l=>add(l));
   // qtd fica em caixa baixa ("2x") — só o nome sobe pra caixa alta
-  const item=(nome,preco,qtd="")=>
-    linhasItem(qtd+String(nome).toUpperCase(),preco).forEach(l=>add(l,true));
+  const item=(nome,preco,qtd="")=>{
+    const nomeUp=qtd+String(nome).toUpperCase();
+    // via cozinha não tem preço, então não reserva a coluna dele — nome
+    // usa a largura toda em vez de RECEIPT_COLS-preço.length-1 (linhasItem)
+    if(via==="cozinha") quebra(nomeUp,RECEIPT_COLS).forEach(l=>add(l,true));
+    else linhasItem(nomeUp,preco).forEach(l=>add(l,true));
+  };
   const obs=txt=>quebra(`Obs: ${txt}`,RECEIPT_COLS,"  ").forEach(l=>add(l,true));
 
-  add(centro("DESMANTELO'S BURGUER"),true);
-  add(centro("Hamburguer Artesanal na Brasa"));
-  add(centro("(81) 9.8669-0346"));
+  if(via==="cozinha") add(centro("COZINHA"),true);
+  else{
+    add(centro("DESMANTELO'S BURGUER"),true);
+    add(centro("Hamburguer Artesanal na Brasa"));
+    add(centro("(81) 9.8669-0346"));
+  }
   add(REGUA);
   add(`${dia}  ${hora}`);
   if(cliente) detalhe(`Cliente: ${cliente}`,"");
@@ -664,14 +676,21 @@ function gerarCupom(){
     }
   });
 
-  const total=pedido.reduce((s,i)=>s+i.preco_total,0);
   add(REGUA);
-  item("TOTAL",total);
-  const pagLabel={dinheiro:"Dinheiro",pix:"Pix",cartao:"Cartão"}[formaPagamento]||"";
-  if(pagLabel) add(`Pagamento: ${pagLabel}`);
-  add(REGUA);
-  add(centro("Obrigado!"));
-  add(centro("@desmantelosburguer"));
+  if(via==="cozinha"){
+    // sem valor monetário na via cozinha — só contagem, pra conferir que
+    // montou o pedido completo
+    const totalItens=pedido.reduce((s,i)=>s+i.qty,0);
+    add(centro(`${totalItens} ${totalItens===1?"item":"itens"}`),true);
+  }else{
+    const total=pedido.reduce((s,i)=>s+i.preco_total,0);
+    item("TOTAL",total);
+    const pagLabel={dinheiro:"Dinheiro",pix:"Pix",cartao:"Cartão"}[formaPagamento]||"";
+    if(pagLabel) add(`Pagamento: ${pagLabel}`);
+    add(REGUA);
+    add(centro("Obrigado!"));
+    add(centro("@desmantelosburguer"));
+  }
 
   return L.map(o=>o.b?`<b>${escHtml(o.t)}</b>`:escHtml(o.t)).join("\n");
 }
@@ -680,9 +699,10 @@ async function imprimirCupom(){
   if(!pedido.length||!formaPagamento)return;
   // innerHTML (não textContent) porque o cupom carrega <b> no nome do item;
   // todo texto livre já vai escapado por escHtml() dentro de gerarCupom()
-  document.getElementById("printArea").innerHTML=gerarCupom();
+  document.getElementById("printCliente").innerHTML=gerarCupom("cliente");
+  document.getElementById("printCozinha").innerHTML=gerarCupom("cozinha");
 
-  /* #printArea fica display:none até a impressão, então o navegador nunca
+  /* #printCliente/#printCozinha ficam display:none até a impressão, então o navegador nunca
      precisou da Roboto Mono e não a carregou. Sem esperar aqui, a primeira
      impressão do dia sai no fallback (Courier New) — justamente a fonte cujo
      traço fino motivou a troca, e sem nenhum aviso de que saiu errado.

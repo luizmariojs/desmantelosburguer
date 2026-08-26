@@ -110,8 +110,11 @@
   </div>
 </div>
 
-<!-- ÁREA DE IMPRESSÃO — só fica visível durante a impressão (@media print) -->
-<pre id="printArea"></pre>
+<!-- ÁREA DE IMPRESSÃO — só fica visível durante a impressão (@media print).
+     Duas vias no mesmo job: cliente primeiro, cozinha depois, separadas por
+     page-break-after no CSS pra sair como dois cortes na térmica. -->
+<pre id="printCliente"></pre>
+<pre id="printCozinha"></pre>
 
 <div class="toast" id="toast"></div>
 

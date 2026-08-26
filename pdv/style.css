@@ -330,7 +330,7 @@
     .btn-imprimir-footer:disabled{opacity:.4;cursor:not-allowed;}
 
     /* ── ÁREA DE IMPRESSÃO — invisível na tela, só aparece no @media print ── */
-    #printArea{display:none;}
+    #printCliente,#printCozinha{display:none;}
 
     /* Bobina de 80mm (Epson TM-T20X). margin:0 evita que a margem padrão do
        navegador (~10mm/lado) coma a largura útil, e suprime cabeçalho/rodapé
@@ -339,7 +339,7 @@
     @page{size:80mm auto;margin:0;}
 
     @media print{
-      body > *:not(#printArea){display:none !important;}
+      body > *:not(#printCliente):not(#printCozinha){display:none !important;}
 
       /* O body do PDV é um flex container de altura fixa com overflow escondido.
          Sem este reset um pedido longo é cortado numa página só. */
@@ -348,7 +348,15 @@
         background:#fff;
       }
 
-      #printArea{
+      /* Via cliente termina de página aqui — a via cozinha começa na "página"
+         seguinte do mesmo job de impressão. Numa térmica com guilhotina
+         automática (Epson TM-T20X) isso deve virar um corte físico entre as
+         duas vias; depende do driver do Windows do balcão tratar cada página
+         do job como algo a cortar — validar na impressora real antes de dar
+         a mudança por concluída (ver openspec/changes/cupom-cozinha). */
+      #printCliente{page-break-after:always;}
+
+      #printCliente,#printCozinha{
         display:block !important;
         width:var(--receipt-width);
         padding:2mm 0;
@@ -379,7 +387,7 @@
            meio-termo de verdade pra subir. */
         font-weight:500;
       }
-      #printArea b{font-weight:700;}
+      #printCliente b,#printCozinha b{font-weight:700;}
     }
 
     /* ── FORMA DE PAGAMENTO ── */

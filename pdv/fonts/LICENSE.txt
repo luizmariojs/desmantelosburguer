@@ -20,7 +20,7 @@ Arquivo incluído: roboto-mono-latin.woff2
   - Subset: latin (U+0000-00FF e pontuação), suficiente para PT-BR
   - Origem: Google Fonts (fonts.gstatic.com), v31
 
-Usada exclusivamente na impressão do cupom do PDV (`#printArea`), não na
+Usada exclusivamente na impressão do cupom do PDV (`#printCliente`/`#printCozinha`), não na
 interface de tela. Auto-hospedada porque o notebook que imprime é do cliente
 e não pode receber instalação de fonte, e nenhuma fonte de fábrica do Windows
 oferece o peso intermediário que o cupom precisa.
