@@ -554,12 +554,12 @@ function renderPedido(){
 }
 
 /* ═══════════════════════════════════════════
-   🖨️  IMPRESSÃO — cupom de 32 colunas (bobina 58mm)
+   🖨️  IMPRESSÃO — cupom de 48 colunas (bobina 80mm)
    ═══════════════════════════════════════════ */
 
 /* Tem que bater com --receipt-width no style.css:
-   48mm úteis / (0.6em × 2.5mm) = 32 colunas. */
-const RECEIPT_COLS=32;
+   72mm úteis, densidade nativa da Fonte A da Epson TM-T20X = 48 colunas em 80mm. */
+const RECEIPT_COLS=48;
 const REGUA="-".repeat(RECEIPT_COLS);
 
 /* O cupom virou HTML (por causa do bold no nome do item), então tudo que é

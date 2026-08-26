@@ -34,10 +34,10 @@
       --text:#E8D9C4;--text2:#A89880;
       --radius:8px;
       /* Área IMPRIMÍVEL da bobina, não a largura física dela.
-         Bobina de 58mm → ~48mm úteis (o resto é margem mecânica) → 32 colunas.
-         Se trocar a impressora: bobina de 80mm → usar 72mm (48 colunas),
-         e ajustar RECEIPT_COLS em app.js pra bater. */
-      --receipt-width:48mm;
+         Epson TM-T20X, bobina de 80mm → 72mm úteis, densidade nativa da
+         Fonte A do hardware (203dpi) → 48 colunas. Bate com RECEIPT_COLS
+         em app.js. */
+      --receipt-width:72mm;
     }
 
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -332,10 +332,11 @@
     /* ── ÁREA DE IMPRESSÃO — invisível na tela, só aparece no @media print ── */
     #printArea{display:none;}
 
-    /* Bobina de 58mm. margin:0 evita que a margem padrão do navegador (~10mm/lado)
-       coma a largura útil, e suprime cabeçalho/rodapé do navegador na maioria dos
-       casos — o resto é opção do diálogo de impressão, não dá pra forçar por CSS. */
-    @page{size:58mm auto;margin:0;}
+    /* Bobina de 80mm (Epson TM-T20X). margin:0 evita que a margem padrão do
+       navegador (~10mm/lado) coma a largura útil, e suprime cabeçalho/rodapé
+       do navegador na maioria dos casos — o resto é opção do diálogo de
+       impressão, não dá pra forçar por CSS. */
+    @page{size:80mm auto;margin:0;}
 
     @media print{
       body > *:not(#printArea){display:none !important;}
@@ -354,12 +355,13 @@
         font-family:'Roboto Mono','Courier New',monospace;
         /* Courier avança 0.6em por caractere, então pra caber COLS colunas
            em --receipt-width o corpo tem que ser largura/(0.6×COLS).
-           Com COLS=32: 48mm/19.2 = 2.5mm de corpo → avanço de 1.5mm.
-           Isso é exatamente a densidade nativa das térmicas de 58mm
-           (fonte A, 12×24 dots a 203dpi = 1.5mm × 3mm por caractere).
+           Com COLS=48: 72mm/28.8 = 2.5mm de corpo → avanço de 1.5mm.
+           Isso é exatamente a densidade nativa da Fonte A da Epson TM-T20X
+           (12×24 dots a 203dpi = 1.5mm × 3mm por caractere) — mesmo corpo
+           de antes, só reaplicado a mais colunas numa bobina maior.
            Derivado por calc pra não dessincronizar de --receipt-width;
-           se mudar RECEIPT_COLS em app.js, mudar o 19.2 aqui (0.6×COLS). */
-        font-size:calc(var(--receipt-width) / 19.2);
+           se mudar RECEIPT_COLS em app.js, mudar o 28.8 aqui (0.6×COLS). */
+        font-size:calc(var(--receipt-width) / 28.8);
         line-height:1.3;
         white-space:pre-wrap;
         /* CRÍTICO: cor declarada, nunca herdada. O body do PDV é tema escuro
