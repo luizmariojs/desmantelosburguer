@@ -656,19 +656,43 @@ function gerarCupom(via){
   pedido.forEach(i=>{
     const qtd=i.qty>1?`${i.qty}x `:"";
     if(i._tipo==="burger"){
-      // nome + preço; as escolhas (tamanho, ponto, refri) descem em linhas
-      // próprias indentadas — mesmo padrão do combo, pra cozinha achar o ponto
-      item(i.nome,i.preco_total,qtd);
-      const segs=i.tierSegs||(i.tier?i.tier.split(" · "):[]);
-      segs.forEach(s=>detalhe(s));
+      if(via==="cozinha"){
+        // Via cozinha: nome + ponto + refri (+ batata) numa linha só. O
+        // rótulo do tier ("Burger + Refri + Batata P") não entra — é
+        // redundante quando ponto/refri já dizem o que preparar; quem
+        // decide "+ Batata P" na linha é a presença do tier 3, não uma
+        // escolha própria (o tamanho da batata do combo-tier é fixo).
+        const segs=i.tierSegs||[];
+        const ponto=segs.find(s=>s.startsWith("Ponto: "))?.slice(7);
+        const refri=segs.find(s=>s.startsWith("Refri: "))?.slice(7);
+        const temBatata=segs[0]==="Burger + Refri + Batata P";
+        const extras=[refri,temBatata?"Batata P":null].filter(Boolean);
+        const linha=([qtd+i.nome,ponto].filter(Boolean).join(" ")
+          +(extras.length?" + "+extras.join(" + "):"")).toUpperCase();
+        quebra(linha,RECEIPT_COLS).forEach(l=>add(l,true));
+      }else{
+        // nome + preço; as escolhas (tamanho, ponto, refri) descem em linhas
+        // próprias indentadas
+        item(i.nome,i.preco_total,qtd);
+        const segs=i.tierSegs||(i.tier?i.tier.split(" · "):[]);
+        segs.forEach(s=>detalhe(s));
+      }
       // adicionais atrelados
       if(i.adds?.length) detalhe(`+ ${i.adds.map(a=>a.nome).join(", ")}`);
       if(i.obs) obs(i.obs);
     } else if(i._tipo==="combo"){
-      // combo tem burger na composição — cozinha precisa saber o quê preparar e o ponto
-      item(i.nome,i.preco_total,qtd);
+      // combo tem burger na composição — cozinha precisa saber o quê preparar.
+      // Via cozinha funde nome+ponto numa linha; a composição (i.detalhe)
+      // não é redundante — é a única fonte dessa informação — então continua
+      // em linha própria nas duas vias.
+      if(via==="cozinha"){
+        const linha=(qtd+i.nome+" "+i.ponto).toUpperCase();
+        quebra(linha,RECEIPT_COLS).forEach(l=>add(l,true));
+      }else{
+        item(i.nome,i.preco_total,qtd);
+      }
       detalhe(i.detalhe);
-      detalhe(`Ponto: ${i.ponto}`);
+      if(via!=="cozinha") detalhe(`Ponto: ${i.ponto}`);
       if(i.obs) obs(i.obs);
     } else {
       item(i.nome,i.preco_total,qtd);
